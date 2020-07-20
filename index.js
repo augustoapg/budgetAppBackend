@@ -1,5 +1,6 @@
 const express = require('express');
 const server = express();
+const transactionDao = require('./daos/transactionDao');
 const Transaction = require('./models/transaction');
 
 server.use(function (req, res, next) {
@@ -25,10 +26,9 @@ server.get('/', (req, res) => {
 server.post('/newTransaction', (req, res) => {
     const {type, who, category, title, date, value, notes} = req.body;
 
-    console.log(type)
-
     try {
-        const newTransaction = new Transaction(type, who, category, title, date, value, notes);
+        const newTransaction = new Transaction(null, type, who, category, title, date, value, notes);
+        transactionDao.addNewTransaction(newTransaction);
         console.log('Object created');
         res.send('Success!');
     } catch (e) {

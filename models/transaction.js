@@ -3,8 +3,8 @@
  */
 
 class Transaction {
-    constructor(type, who, category, title, date, value, notes) {
-        this._id = this.getNewId();
+    constructor(id, type, who, category, title, date, value, notes) {
+        this._id = id;
         this._type = type;
         this._who = who;
         this._category = category;
@@ -14,8 +14,12 @@ class Transaction {
         this._notes = notes;
     }
 
-    getNewId() {
-        return 1;
+    get id() {
+        return this._id;
+    }
+
+    set id(value) {
+        this._id = value;
     }
 
     get type() {
