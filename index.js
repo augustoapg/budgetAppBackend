@@ -23,14 +23,13 @@ server.get('/', (req, res) => {
     res.send('Backend root');
 });
 
-server.post('/newTransaction', (req, res) => {
+server.post('/newTransaction', async (req, res) => {
     const {type, who, category, title, date, value, notes} = req.body;
 
     try {
         const newTransaction = new Transaction(null, type, who, category, title, date, value, notes);
-        transactionDao.addNewTransaction(newTransaction);
-        console.log('Object created');
-        res.send('Success!');
+        const id = await transactionDao.addNewTransaction(newTransaction);
+        res.send({id: id});
     } catch (e) {
         console.log(e)
         res.send(e);
