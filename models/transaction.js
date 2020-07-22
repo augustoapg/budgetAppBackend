@@ -4,14 +4,14 @@
 
 class Transaction {
     constructor(id, type, who, category, title, date, value, notes) {
-        this._id = id;
-        this._type = type;
-        this._who = who;
-        this._category = category;
-        this._title = title;
-        this._date = date;
-        this._value = value;
-        this._notes = notes;
+        this.id = id;
+        this.type = type;
+        this.who = who;
+        this.category = category;
+        this.title = title;
+        this.date = date;
+        this.value = value;
+        this.notes = notes;
     }
 
     get id() {
