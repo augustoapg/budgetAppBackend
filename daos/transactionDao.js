@@ -14,9 +14,9 @@ const getNewId = async () => {
     let results = null;
 
     try {
-        [results,fields] = await connection.query(sqlQuery);
+        [results, fields] = await connection.query(sqlQuery);
     } catch (error) {
-        console.log(error);
+        throw error.message;
     } finally {
         await connection.end();
         return results[0].maximum+1;
@@ -35,13 +35,29 @@ const addNewTransaction = async (transaction) => {
     try {
         await connection.query(preparedInsert);
     } catch (error) {
-        console.log(error);
+        throw error.message;
     } finally {
         await connection.end();
         return id;
     }
 }
+
+const getAllTransactions = async () => {
+    const connection = await mysql.createConnection(dbConfig);
+    const querySql = 'SELECT * FROM transactions';
+
+    try {
+        [results, fields] = await connection.query(querySql);
+    } catch (error) {
+        throw error.message;
+    } finally {
+        await connection.end();
+        return results;
+    }
+}
+
 module.exports = {
-    addNewTransaction: addNewTransaction
+    addNewTransaction: addNewTransaction,
+    getAllTransactions: getAllTransactions
 }
 

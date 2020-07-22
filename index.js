@@ -31,11 +31,17 @@ server.post('/newTransaction', async (req, res) => {
         const id = await transactionDao.addNewTransaction(newTransaction);
         res.send({id: id});
     } catch (e) {
-        console.log(e)
-        res.send(e);
+        res.send(e.message);
+    }    
+});
+
+server.get('/getAllTransactions', async (req, res) => {
+    try {
+        const allTransactions = await transactionDao.getAllTransactions();
+        res.send(allTransactions);
+    } catch (e) {
+        res.send(e.message);
     }
-    console.log(req.body);
-    
 });
 
 server.listen(4242, () => {
