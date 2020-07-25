@@ -76,9 +76,46 @@ const getTransactionById = async (id) => {
     }
 }
 
+const getTransactionBy = async (queryObj) => {
+    let querySql = 'SELECT * from transactions where ';
+    let queryParams = [];
+    let paramsExist = false;
+
+    for (let key in queryObj) {
+        if (queryObj[key]) {
+            querySql += `${key}=? AND `;
+            queryParams.push(queryObj[key]);
+            paramsExist = true;
+        }
+    }
+
+    if (paramsExist) {
+        const connection = await mysql.createConnection(dbConfig);
+        querySql = querySql.slice(0, querySql.length - 4); // removes last AND
+        const prepSql = mysql.format(querySql, queryParams);
+
+        try {
+            [result, fields] = await connection.query(prepSql);
+    
+            if (result.length > 0) {
+                return result;
+            } else {
+                throw new Error(`No Transaction with those params was found`);
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            await connection.end();
+        }
+    }
+
+    throw new Error('Invalid. All parameters were empty.')
+}
+
 module.exports = {
     addNewTransaction: addNewTransaction,
     getAllTransactions: getAllTransactions,
-    getTransactionById: getTransactionById
+    getTransactionById: getTransactionById,
+    getTransactionBy: getTransactionBy
 }
 

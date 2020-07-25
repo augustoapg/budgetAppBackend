@@ -46,8 +46,30 @@ server.get('/getAllTransactions', async (req, res) => {
 
 server.get('/getTransactionById', async (req, res) => {
     try {
-        const id = req.query.id;
+        const id = req.query.name;
         const transaction = await transactionDao.getTransactionById(id);
+        res.send(transaction);
+    } catch (e) {
+        res.send(e.message);
+    }
+});
+
+server.get('/getTransactionsBy', async (req, res) => {
+    try {
+        const {id, type, who, category, title, date, value} = req.query;
+        const queryObj = {
+            id: id,
+            type: type,
+            who: who,
+            category: category,
+            title, title,
+            date: date,
+            value: value
+        }
+        // TODO: Validate fields
+        
+        const transaction = await transactionDao.getTransactionBy(queryObj);
+
         res.send(transaction);
     } catch (e) {
         res.send(e.message);
