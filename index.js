@@ -44,6 +44,16 @@ server.get('/getAllTransactions', async (req, res) => {
     }
 });
 
+server.get('/getTransactionById', async (req, res) => {
+    try {
+        const id = req.query.id;
+        const transaction = await transactionDao.getTransactionById(id);
+        res.send(transaction);
+    } catch (e) {
+        res.send(e.message);
+    }
+});
+
 server.listen(4242, () => {
     console.log('Server running...')
 });
