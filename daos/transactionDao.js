@@ -141,11 +141,36 @@ const deleteTransaction = async (id) => {
     }
 };
 
+const editTransaction = async (transaction) => {
+    let updateSql = 'UPDATE transactions';
+    let queryParams = [];
+
+    let setStatement = ' set ';
+
+    for (let key in transaction) {
+        if (transaction[key]) {
+            setStatement += `${key.replace('_', '')}=?,`;
+            queryParams.push(transaction[key]);
+        }
+    }
+
+    setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
+    updateSql += setStatement + ' where id=?';
+    queryParams.push(transaction['id']);
+    
+    try {
+        return executeQuery(updateSql, queryParams);
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     addNewTransaction: addNewTransaction,
     getAllTransactions: getAllTransactions,
     getTransactionById: getTransactionById,
     getTransactionBy: getTransactionBy,
-    deleteTransaction: deleteTransaction
+    deleteTransaction: deleteTransaction,
+    editTransaction: editTransaction
 }
 

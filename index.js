@@ -76,11 +76,27 @@ server.get('/getTransactionsBy', async (req, res) => {
     }
 });
 
+server.put('/editTransaction', async (req, res) => {
+    const {id, type, who, category, title, date, value, notes} = req.body;
+
+    if (id) {
+        try {
+            const newTransaction = new Transaction(id, type, who, category, title, date, value, notes);
+            await transactionDao.editTransaction(newTransaction);
+            res.send(`Transaction ${id} was updated successfully`);
+        } catch (e) {
+            res.send(e.message);
+        }
+    } else {
+        res.send('Id cannot be empty');
+    }
+});
+
 server.delete('/deleteTransaction', async (req, res) => {
     try {
         const id = req.query.id;
         const result = await transactionDao.deleteTransaction(id);
-        res.send(`Transaction ${id} was deleted`);
+        res.send(`Transaction ${id} was deleted successfully`);
     } catch (e) {
         res.send(e.message);
     }
