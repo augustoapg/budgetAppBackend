@@ -44,27 +44,19 @@ server.get('/getAllTransactions', async (req, res) => {
     }
 });
 
-server.get('/getTransactionById', async (req, res) => {
-    try {
-        const id = req.query.id;
-        const transaction = await transactionDao.getTransactionById(id);
-        res.send(transaction);
-    } catch (e) {
-        res.send(e.message);
-    }
-});
-
 server.get('/getTransactionsBy', async (req, res) => {
     try {
-        const {id, type, who, category, title, date, value} = req.query;
+        const {id, type, who, category, title, dateMin, dateMax, valueMin, valueMax} = req.query;
         const queryObj = {
             id: id,
             type: type,
             who: who,
             category: category,
             title, title,
-            date: date,
-            value: value
+            dateMin: dateMin,
+            dateMax: dateMax,
+            valueMin: valueMin,
+            valueMax: valueMax
         }
         // TODO: Validate fields
         
@@ -75,6 +67,8 @@ server.get('/getTransactionsBy', async (req, res) => {
         res.send(e.message);
     }
 });
+
+// server.get('/getTransactionsByDateRange', async (req, res))
 
 server.put('/editTransaction', async (req, res) => {
     const {id, type, who, category, title, date, value, notes} = req.body;

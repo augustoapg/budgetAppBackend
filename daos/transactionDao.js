@@ -87,17 +87,29 @@ const getTransactionBy = async (queryObj) => {
 const getParams = (queryObj) => {
     let queryParams = [];
     for (let key in queryObj) {
-        queryParams.push(queryObj[key]);
+        if(queryObj[key]) {
+            queryParams.push(queryObj[key]);
+        }
     }
     return queryParams;
 }
 
 const buildWhereStatement = (queryObj, condition = 'AND') => {
     let whereStatement = ' where ';
+    let operator = '=';
 
     for (let key in queryObj) {
         if (queryObj[key]) {
-            whereStatement += `${key}=? ${condition} `;
+            if (key === 'dateMin' || key === 'valueMin') {
+                operator = '>=';
+                key = key.slice(0, key.length - 3); // removes Min to match column name
+            } else if (key === 'dateMax' || key === 'valueMax') {
+                operator = '<=';
+                key = key.slice(0, key.length - 3); // removes Max to match column name
+            }
+
+            whereStatement += `${key}${operator}? ${condition} `;
+            operator = '='; // reset
         }
     }
 
