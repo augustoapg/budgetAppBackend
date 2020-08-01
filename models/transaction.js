@@ -75,7 +75,8 @@ class Transaction {
     }
 
     set date(value) {
-        if (value) {
+        const dateVal = new Date(value);
+        if (value && dateVal instanceof Date) {
             this._date = value;
         } else {
             throw new Error('date cannot be empty');
@@ -87,7 +88,7 @@ class Transaction {
     }
 
     set value(value) {
-        if (value) {
+        if (value && typeof value === 'number') {
             this._value = value;
         } else {
             throw new Error('value cannot be empty');

@@ -2,15 +2,12 @@ const express = require('express');
 const server = express();
 const transactionDao = require('./daos/transactionDao');
 const Transaction = require('./models/transaction');
+const { handleError, ErrorHandler } = require('./helpers/error');
 
-server.use(function (req, res, next) {
+server.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    // res.setHeader('Access-Control-Allow-Credentials', true);
 
     // Pass to next layer of middleware
     next();
@@ -19,32 +16,35 @@ server.use(function (req, res, next) {
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
-server.get('/', (req, res) => {
+server.get('/', (req, res, next) => {
     res.send('Backend root');
 });
 
-server.post('/newTransaction', async (req, res) => {
+server.post('/newTransaction', async (req, res, next) => {
     const {type, who, category, title, date, value, notes} = req.body;
 
     try {
         const newTransaction = new Transaction(null, type, who, category, title, date, value, notes);
         const id = await transactionDao.addNewTransaction(newTransaction);
-        res.send({id: id});
+        res.send({
+            id: id,
+            message: `Transaction added with id ${id}`
+        });
     } catch (e) {
-        res.send(e.message);
+        next(new ErrorHandler(500, e.message));
     }    
 });
 
-server.get('/getAllTransactions', async (req, res) => {
+server.get('/getAllTransactions', async (req, res, next) => {
     try {
         const allTransactions = await transactionDao.getAllTransactions();
         res.send(allTransactions);
     } catch (e) {
-        res.send(e.message);
+        next(new ErrorHandler(500, e.message));
     }
 });
 
-server.get('/getTransactionsBy', async (req, res) => {
+server.get('/getTransactionsBy', async (req, res, next) => {
     try {
         const {id, type, who, category, title, dateMin, dateMax, valueMin, valueMax} = req.query;
         const queryObj = {
@@ -64,36 +64,42 @@ server.get('/getTransactionsBy', async (req, res) => {
 
         res.send(transaction);
     } catch (e) {
-        res.send(e.message);
+        next(new ErrorHandler(500, e.message));
     }
 });
 
-// server.get('/getTransactionsByDateRange', async (req, res))
-
-server.put('/editTransaction', async (req, res) => {
+server.put('/editTransaction', async (req, res, next) => {
     const {id, type, who, category, title, date, value, notes} = req.body;
 
     if (id) {
         try {
             const newTransaction = new Transaction(id, type, who, category, title, date, value, notes);
             await transactionDao.editTransaction(newTransaction);
-            res.send(`Transaction ${id} was updated successfully`);
+            res.send({
+                message: `Transaction ${id} was updated successfully` 
+            });
         } catch (e) {
-            res.send(e.message);
+            next(new ErrorHandler(500, e.message));
         }
     } else {
-        res.send('Id cannot be empty');
+        next(new ErrorHandler(500, 'Id cannot be empty'));
     }
 });
 
-server.delete('/deleteTransaction', async (req, res) => {
+server.delete('/deleteTransaction', async (req, res, next) => {
     try {
         const id = req.query.id;
         const result = await transactionDao.deleteTransaction(id);
-        res.send(`Transaction ${id} was deleted successfully`);
+        res.send({
+            message: `Transaction ${id} was deleted successfully` 
+        });
     } catch (e) {
-        res.send(e.message);
+        next(new ErrorHandler(500, e.message));
     }
+});
+
+server.use((err, req, res, next) => {
+    handleError(err, res);
 });
 
 server.listen(4242, () => {

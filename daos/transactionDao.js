@@ -178,11 +178,11 @@ const editTransaction = async (transaction) => {
 };
 
 module.exports = {
-    addNewTransaction: addNewTransaction,
-    getAllTransactions: getAllTransactions,
-    getTransactionById: getTransactionById,
-    getTransactionBy: getTransactionBy,
-    deleteTransaction: deleteTransaction,
-    editTransaction: editTransaction
+    addNewTransaction,
+    getAllTransactions,
+    getTransactionById,
+    getTransactionBy,
+    deleteTransaction,
+    editTransaction
 }
 
