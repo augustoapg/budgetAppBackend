@@ -3,11 +3,11 @@
  */
 
 class Transaction {
-    constructor(id, type, who, category, title, date, value, notes) {
+    constructor(id, type, who, subcategory, title, date, value, notes) {
         this.id = id;
         this.type = type;
         this.who = who;
-        this.category = category;
+        this.subcategory = subcategory;
         this.title = title;
         this.date = date;
         this.value = value;
@@ -46,15 +46,15 @@ class Transaction {
         }
     }
 
-    get category() {
-        return this._category;
+    get subcategory() {
+        return this._subcategory;
     }
 
-    set category(value) {
+    set subcategory(value) {
         if (value) {
-            this._category = value;
+            this._subcategory = value;
         } else {
-            throw new Error('category cannot be empty');
+            throw new Error('subcategory cannot be empty');
         }
     }
 

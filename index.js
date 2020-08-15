@@ -1,6 +1,7 @@
 const express = require('express');
 const server = express();
 const transactionDao = require('./daos/transactionDao');
+const categoryDao = require('./daos/categoryDao')
 const Transaction = require('./models/transaction');
 const { handleError, ErrorHandler } = require('./helpers/error');
 
@@ -16,15 +17,17 @@ server.use((req, res, next) => {
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
+createAndPopulateTables();
+
 server.get('/', (req, res, next) => {
     res.send('Backend root');
 });
 
 server.post('/newTransaction', async (req, res, next) => {
-    const {type, who, category, title, date, value, notes} = req.body;
+    const {type, who, subcategory, title, date, value, notes} = req.body;
 
     try {
-        const newTransaction = new Transaction(null, type, who, category, title, date, value, notes);
+        const newTransaction = new Transaction(null, type, who, subcategory, title, date, value, notes);
         const id = await transactionDao.addNewTransaction(newTransaction);
         res.send({
             id: id,
@@ -46,12 +49,12 @@ server.get('/getAllTransactions', async (req, res, next) => {
 
 server.get('/getTransactionsBy', async (req, res, next) => {
     try {
-        const {id, type, who, category, title, dateMin, dateMax, valueMin, valueMax} = req.query;
+        const {id, type, who, subcategory, title, dateMin, dateMax, valueMin, valueMax} = req.query;
         const queryObj = {
             id: id,
             type: type,
             who: who,
-            category: category,
+            subcategory: subcategory,
             title, title,
             dateMin: dateMin,
             dateMax: dateMax,
@@ -69,11 +72,11 @@ server.get('/getTransactionsBy', async (req, res, next) => {
 });
 
 server.put('/editTransaction', async (req, res, next) => {
-    const {id, type, who, category, title, date, value, notes} = req.body;
+    const {id, type, who, subcategory, title, date, value, notes} = req.body;
 
     if (id) {
         try {
-            const newTransaction = new Transaction(id, type, who, category, title, date, value, notes);
+            const newTransaction = new Transaction(id, type, who, subcategory, title, date, value, notes);
             await transactionDao.editTransaction(newTransaction);
             res.send({
                 message: `Transaction ${id} was updated successfully` 
@@ -105,3 +108,12 @@ server.use((err, req, res, next) => {
 server.listen(4242, () => {
     console.log('Server running...')
 });
+
+async function createAndPopulateTables() {
+    try {
+        const categoryTableCreation = await categoryDao.createCategoryTable();
+        console.log(categoryTableCreation);
+    } catch (e) {
+        next(new ErrorHandler(500, e.message));
+    }
+}

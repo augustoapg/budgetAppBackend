@@ -1,12 +1,6 @@
 const mysql = require('mysql2/promise');
 const { promisify } = require('util');
-
-const dbConfig = {
-    host        : 'localhost',
-    user        : 'root',
-    password    : 'password',
-    database    : 'budget'
-}
+const dbConfig = require('../config/dbConfig');
 
 const getNewId = async () => {
     const sqlQuery = 'SELECT MAX(id) as maximum FROM transactions';
@@ -24,21 +18,21 @@ const getNewId = async () => {
 }
 
 const addNewTransaction = async (transaction) => {
-    let {id, type, who, category, title, date, value, notes} = transaction;
+    let {id, type, who, subcategory, title, date, value, notes} = transaction;
     const connection = await mysql.createConnection(dbConfig);
 
     id = await getNewId();
 
     const insertSql = 'INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const preparedInsert = mysql.format(insertSql, [id, type, who, category, title, date, value, notes]);
+    const preparedInsert = mysql.format(insertSql, [id, type, who, subcategory, title, date, value, notes]);
 
     try {
         await connection.query(preparedInsert);
+        return id;
     } catch (error) {
         throw error;
     } finally {
         await connection.end();
-        return id;
     }
 }
 
@@ -185,4 +179,3 @@ module.exports = {
     deleteTransaction,
     editTransaction
 }
-
