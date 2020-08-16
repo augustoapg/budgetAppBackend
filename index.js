@@ -17,8 +17,6 @@ server.use((req, res, next) => {
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
-createAndPopulateTables();
-
 server.get('/', (req, res, next) => {
     res.send('Backend root');
 });
@@ -109,10 +107,21 @@ server.listen(4242, () => {
     console.log('Server running...')
 });
 
-async function createAndPopulateTables() {
+createAndPopulateTables();
+
+async function createAndPopulateTables(next) {
     try {
         const categoryTableCreation = await categoryDao.createCategoryTable();
+        const subCategoryTableCreation = await categoryDao.createSubCategoryTable();
+        const transactionTableCreation = await transactionDao.createTransactionTable();
         console.log(categoryTableCreation);
+        console.log(subCategoryTableCreation);
+        console.log(transactionTableCreation);
+
+        const categoryTablePopulation = await categoryDao.populateCategoryTable();
+        // const subcategoryTablePopulation = await categoryDao.populateSubcategoryTable();
+        console.log(categoryTablePopulation);
+        // console.log(subcategoryTablePopulation);
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }

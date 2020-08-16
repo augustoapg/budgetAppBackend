@@ -1,6 +1,35 @@
 const mysql = require('mysql2/promise');
-const { promisify } = require('util');
 const dbConfig = require('../config/dbConfig');
+
+const createTransactionTable = async () => {
+    const sql = `CREATE TABLE IF NOT EXISTS transaction (
+        id INT PRIMARY KEY,
+        title VARCHAR(70) NOT NULL,
+        type VARCHAR(45) NOT NULL,
+        who VARCHAR(45) NOT NULL,
+        date DATE NOT NULL,
+        value DECIMAL(6,2) NOT NULL,
+        notes VARCHAR(250) NOT NULL,
+        subcategoryId INT NOT NULL,
+        FOREIGN KEY (subcategoryId) REFERENCES subcategory(id)
+    )`;
+
+    const connection = await mysql.createConnection(dbConfig);
+    let results = null;
+
+    try {
+        [results, fields] = await connection.query(sql);
+    } catch (error) {
+        throw error;
+    } finally {
+        await connection.end();
+        if (results.warningStatus !== 0) {
+            return 'Table Subcategory was already created';
+        }
+
+        return 'Table Subcategory has been created';
+    }
+}
 
 const getNewId = async () => {
     const sqlQuery = 'SELECT MAX(id) as maximum FROM transactions';
