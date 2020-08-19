@@ -12,17 +12,17 @@ const createCategoryTable = async () => {
     let results = null;
 
     try {
-        [results, fields] = await connection.query(sql);
+    [results, fields] = await connection.query(sql);
     } catch (error) {
         throw error;
     } finally {
         await connection.end();
 
-        if (results.warningStatus !== 0) {
-            return 'Table Category was already created';
+        if (results && results.warningStatus !== 0) {
+            return false;
         }
 
-        return 'Table category has been created';
+        return true;
     }
 }
 
@@ -30,8 +30,8 @@ const createSubCategoryTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS subcategory (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(50) NOT NULL UNIQUE,
-        categoryId VARCHAR(50) NOT NULL,
-        FOREIGN KEY (categoryId) REFERENCES category(id)
+        categoryId INT NOT NULL,
+        CONSTRAINT fk_category FOREIGN KEY (categoryId) REFERENCES budget.category(id)
     )`;
 
     const connection = await mysql.createConnection(dbConfig);
@@ -43,16 +43,16 @@ const createSubCategoryTable = async () => {
         throw error;
     } finally {
         await connection.end();
-        if (results.warningStatus !== 0) {
-            return 'Table Subcategory was already created';
+        if (results && results.warningStatus !== 0) {
+            return false;
         }
 
-        return 'Table Subcategory has been created';
+        return true;
     }
 }
 
 const populateCategoryTable = async () => {
-    const sql = `INSERT INTO category
+    const sql = `INSERT INTO budget.category(name, type)
         VALUES  ('Income', 'income'),
                 ('Housing', 'need'),
                 ('Transportation', 'need'),
@@ -61,7 +61,7 @@ const populateCategoryTable = async () => {
                 ('Savings', 'savings'),
                 ('Giving', 'giving'),
                 ('Insurance', 'need')
-    )`;
+    `;
 
     const connection = await mysql.createConnection(dbConfig);
     let results = null;
@@ -71,12 +71,7 @@ const populateCategoryTable = async () => {
     } catch (error) {
         throw error;
     } finally {
-        await connection.end();
-        if (results.warningStatus !== 0) {
-            return 'Table Subcategory was already created';
-        }
-
-        return 'Table Subcategory has been created';
+        return results;
     }
 }
 

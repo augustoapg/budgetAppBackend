@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const dbConfig = require('../config/dbConfig');
 
 const createTransactionTable = async () => {
-    const sql = `CREATE TABLE IF NOT EXISTS transaction (
+    const sql = `CREATE TABLE IF NOT EXISTS transactions (
         id INT PRIMARY KEY,
         title VARCHAR(70) NOT NULL,
         type VARCHAR(45) NOT NULL,
@@ -11,7 +11,7 @@ const createTransactionTable = async () => {
         value DECIMAL(6,2) NOT NULL,
         notes VARCHAR(250) NOT NULL,
         subcategoryId INT NOT NULL,
-        FOREIGN KEY (subcategoryId) REFERENCES subcategory(id)
+        FOREIGN KEY (subcategoryId) REFERENCES budget.subcategory(id)
     )`;
 
     const connection = await mysql.createConnection(dbConfig);
@@ -23,11 +23,11 @@ const createTransactionTable = async () => {
         throw error;
     } finally {
         await connection.end();
-        if (results.warningStatus !== 0) {
-            return 'Table Subcategory was already created';
+        if (results && results.warningStatus !== 0) {
+            return false;
         }
 
-        return 'Table Subcategory has been created';
+        return true;
     }
 }
 
@@ -147,7 +147,7 @@ const executeQuery = async (querySql, queryParams) => {
     try {
         [result, fields] = await connection.query(prepSql);
 
-        if (result.length > 0 || result.affectedRows > 0) {
+        if (result && result.length > 0 || result.affectedRows > 0) {
             return result;
         } else {
             throw new Error(`No Transaction with those params was found`);
@@ -201,6 +201,7 @@ const editTransaction = async (transaction) => {
 };
 
 module.exports = {
+    createTransactionTable,
     addNewTransaction,
     getAllTransactions,
     getTransactionById,

@@ -109,20 +109,22 @@ server.listen(4242, () => {
 
 createAndPopulateTables();
 
-async function createAndPopulateTables(next) {
+async function createAndPopulateTables() {
     try {
-        const categoryTableCreation = await categoryDao.createCategoryTable();
-        const subCategoryTableCreation = await categoryDao.createSubCategoryTable();
-        const transactionTableCreation = await transactionDao.createTransactionTable();
-        console.log(categoryTableCreation);
-        console.log(subCategoryTableCreation);
-        console.log(transactionTableCreation);
+        const isCategoryTableNew = await categoryDao.createCategoryTable();
+        console.log(isCategoryTableNew ? 'Table Category was created' : 'Table Category was already created');
+        const isSubcategoryTableNew = await categoryDao.createSubCategoryTable();
+        console.log(isSubcategoryTableNew ? 'Table Subcategory was created' : 'Table Subcategory was already created');
+        const isTransactionTableNew = await transactionDao.createTransactionTable();
+        console.log(isTransactionTableNew ? 'Table Transaction was created' : 'Table Transaction was already created');
 
-        const categoryTablePopulation = await categoryDao.populateCategoryTable();
+        if (isCategoryTableNew) {
+            const categoryTablePopulation = await categoryDao.populateCategoryTable();
+            console.log(`Table category has been populated with: ${categoryTablePopulation.info}`);
+        }
         // const subcategoryTablePopulation = await categoryDao.populateSubcategoryTable();
-        console.log(categoryTablePopulation);
         // console.log(subcategoryTablePopulation);
     } catch (e) {
-        next(new ErrorHandler(500, e.message));
+        console.log(e.message);
     }
 }
