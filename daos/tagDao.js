@@ -1,17 +1,37 @@
 const mysql = require('mysql2/promise');
 const dbConfig = require('../config/dbConfig');
 
-const createTransactionTable = async () => {
-    const sql = `CREATE TABLE IF NOT EXISTS transactions (
+const createTagTable = async () => {
+    const sql = `CREATE TABLE IF NOT EXISTS tag (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        title VARCHAR(70) NOT NULL,
-        type VARCHAR(45) NOT NULL,
-        who VARCHAR(45) NOT NULL,
-        date DATE NOT NULL,
-        value DECIMAL(6,2) NOT NULL,
-        notes VARCHAR(250) NOT NULL,
-        subcategoryId INT NOT NULL,
-        FOREIGN KEY (subcategoryId) REFERENCES budget.subcategory(id)
+        name VARCHAR(70) NOT NULL
+    )`;
+
+    const connection = await mysql.createConnection(dbConfig);
+    let results = null;
+
+    try {
+        [results, fields] = await connection.query(sql);
+        await createTransactionTagTable();
+    } catch (error) {
+        throw error;
+    } finally {
+        await connection.end();
+        if (results && results.warningStatus !== 0) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+const createTransactionTagTable = async () => {
+    const sql = `CREATE TABLE IF NOT EXISTS transaction_tag (
+        tagId INT,
+        transactionId INT,
+        PRIMARY KEY (tagId, transactionId),
+        CONSTRAINT fk_tag FOREIGN KEY (tagId) REFERENCES budget.tag(id),
+        CONSTRAINT fk_transactionId FOREIGN KEY (transactionId) REFERENCES budget.transactions(id)
     )`;
 
     const connection = await mysql.createConnection(dbConfig);
@@ -27,19 +47,20 @@ const createTransactionTable = async () => {
             return false;
         }
 
+        console.log('Junction table transaction_tag was now created');
         return true;
     }
 }
 
-const addNewTransaction = async (transaction) => {
-    let {type, who, subcategory, title, date, value, notes} = transaction;
+const addNewTag = async (name, transactionId) => {
     const connection = await mysql.createConnection(dbConfig);
-
-    const insertSql = 'INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const preparedInsert = mysql.format(insertSql, [type, who, subcategory, title, date, value, notes]);
+    const insertSql = 'INSERT INTO tag VALUES (?)';
+    const preparedInsert = mysql.format(insertSql, [name]);
 
     try {
         [results, fields] = await connection.query(preparedInsert);
+        [resultsJunct] = await addNewTransactionTag(results.insertId, transactionId, connection);
+        
         return results.insertId;
     } catch (error) {
         throw error;
@@ -48,9 +69,25 @@ const addNewTransaction = async (transaction) => {
     }
 }
 
-const getAllTransactions = async () => {
+const addNewTransactionTag = async (tagId, transactionId, connection) => {
+    const insertJunctionSql = 'INSERT INTO transaction_tag VALUES (?, ?)'
+
+    const preparedInsert = mysql.format(insertJunctionSql, [tagId, transactionId]);
+
+    try {
+        [results, fields] = await connection.query(preparedInsert);
+        
+        return results;
+    } catch (error) {
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
+const getAllTags = async () => {
     const connection = await mysql.createConnection(dbConfig);
-    const querySql = 'SELECT * FROM transactions';
+    const querySql = 'SELECT * FROM tag';
 
     try {
         [results, fields] = await connection.query(querySql);
@@ -62,8 +99,8 @@ const getAllTransactions = async () => {
     }
 }
 
-const getTransactionById = async (id) => {
-    const querySql = 'SELECT * from transactions where id=?';
+const getTagById = async (id) => {
+    const querySql = 'SELECT * from tag where id=?';
 
     try {
         return executeQuery(querySql, [id]);
@@ -72,8 +109,8 @@ const getTransactionById = async (id) => {
     }
 }
 
-const getTransactionBy = async (queryObj) => {  
-    let querySql = 'SELECT * from transactions';
+const getTagBy = async (queryObj) => {  
+    let querySql = 'SELECT * from tag';
     let queryParams = getParams(queryObj);
 
     if (queryParams.length > 0) {
@@ -133,7 +170,7 @@ const executeQuery = async (querySql, queryParams) => {
         if (result && result.length > 0 || result.affectedRows > 0) {
             return result;
         } else {
-            throw new Error(`No Transaction with those params was found`);
+            throw new Error(`No Tag with those params was found`);
         }
     } catch (error) {
         throw error;
@@ -142,13 +179,16 @@ const executeQuery = async (querySql, queryParams) => {
     }
 }
 
-const deleteTransaction = async (id) => {
-    let querySql = 'DELETE from transactions where ';
+const deleteTag = async (id) => {
+    let queryJuncSql = 'DELETE FROM transaction_tag where ';
+    let querySql = 'DELETE from tag where ';
 
     if (id) {
+        queryJuncSql += 'tagId = ?';
         querySql += `id = ?`;            
     
         try {
+            await executeQuery(queryJuncSql, [id]);
             return executeQuery(querySql, [id]);
         } catch (error) {
             throw error;
@@ -159,22 +199,22 @@ const deleteTransaction = async (id) => {
     }
 };
 
-const editTransaction = async (transaction) => {
-    let updateSql = 'UPDATE transactions';
+const editTag = async (tag) => {
+    let updateSql = 'UPDATE tag';
     let queryParams = [];
 
     let setStatement = ' set ';
 
-    for (let key in transaction) {
-        if (transaction[key]) {
+    for (let key in tag) {
+        if (tag[key]) {
             setStatement += `${key.replace('_', '')}=?,`;
-            queryParams.push(transaction[key]);
+            queryParams.push(tag[key]);
         }
     }
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
     updateSql += setStatement + ' where id=?';
-    queryParams.push(transaction['id']);
+    queryParams.push(tag['id']);
     
     try {
         return executeQuery(updateSql, queryParams);
@@ -184,11 +224,11 @@ const editTransaction = async (transaction) => {
 };
 
 module.exports = {
-    createTransactionTable,
-    addNewTransaction,
-    getAllTransactions,
-    getTransactionById,
-    getTransactionBy,
-    deleteTransaction,
-    editTransaction
+    createTagTable,
+    addNewTag,
+    getAllTags,
+    getTagById,
+    getTagBy,
+    deleteTag,
+    editTag
 }
