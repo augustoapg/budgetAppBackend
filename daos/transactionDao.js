@@ -10,8 +10,8 @@ const createTransactionTable = async () => {
         date DATE NOT NULL,
         value DECIMAL(6,2) NOT NULL,
         notes VARCHAR(250) NOT NULL,
-        subcategoryId INT NOT NULL,
-        FOREIGN KEY (subcategoryId) REFERENCES budget.subcategory(id)
+        subcategory INT NOT NULL,
+        FOREIGN KEY (subcategory) REFERENCES budget.subcategory(id)
     )`;
 
     const connection = await mysql.createConnection(dbConfig);
@@ -35,8 +35,8 @@ const addNewTransaction = async (transaction) => {
     let {type, who, subcategory, title, date, value, notes} = transaction;
     const connection = await mysql.createConnection(dbConfig);
 
-    const insertSql = 'INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const preparedInsert = mysql.format(insertSql, [type, who, subcategory, title, date, value, notes]);
+    const insertSql = 'INSERT INTO transactions (title, type, who, date, value, notes, subcategoryId) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const preparedInsert = mysql.format(insertSql, [title, type, who, date, value, notes, subcategory]);
 
     try {
         [results, fields] = await connection.query(preparedInsert);
