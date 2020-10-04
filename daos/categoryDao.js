@@ -75,36 +75,11 @@ const populateCategoryTable = async () => {
     }
 }
 
-// TODO
-const populateSubCategoryTable = async () => {
-    const sql = `INSERT INTO budget.subcategory(name, categoryId)
-        VALUES  ('Income', 'income'),
-                ('Housing', 'need'),
-                ('Transportation', 'need'),
-                ('Lifestyle', 'need'),
-                ('Personal', 'want'),
-                ('Savings', 'savings'),
-                ('Giving', 'giving'),
-                ('Insurance', 'need')
-    `;
-
-    const connection = await mysql.createConnection(dbConfig);
-    let results = null;
-
-    try {
-        [results, fields] = await connection.query(sql);
-    } catch (error) {
-        throw error;
-    } finally {
-        return results;
-    }
-}
-
 const addNewCategory = async (category) => {
     let {name, type} = category;
     const connection = await mysql.createConnection(dbConfig);
 
-    const insertSql = 'INSERT INTO category VALUES (?, ?)';
+    const insertSql = 'INSERT INTO category (name, type) VALUES (?, ?)';
     const preparedInsert = mysql.format(insertSql, [name, type]);
 
     try {
@@ -346,7 +321,6 @@ module.exports = {
     createCategoryTable,
     createSubCategoryTable,
     populateCategoryTable,
-    populateSubCategoryTable,
     addNewCategory,
     getAllCategories,
     getCategoryById,

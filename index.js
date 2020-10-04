@@ -22,7 +22,6 @@ server.use((req, res, next) => {
     next();
 });
 
-
 server.get('/', (req, res, next) => {
     res.send('Backend root');
 });

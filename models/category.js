@@ -1,5 +1,3 @@
-
-
 class Category {
     constructor (id, name, type) {
         this.id = id;
@@ -39,3 +37,5 @@ class Category {
         }
     }
 }
+
+module.exports = Category

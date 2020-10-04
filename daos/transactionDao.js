@@ -35,7 +35,7 @@ const addNewTransaction = async (transaction) => {
     let {type, who, subcategory, title, date, value, notes} = transaction;
     const connection = await mysql.createConnection(dbConfig);
 
-    const insertSql = 'INSERT INTO transactions (title, type, who, date, value, notes, subcategoryId) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const insertSql = 'INSERT INTO transactions (title, type, who, date, value, notes, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?)';
     const preparedInsert = mysql.format(insertSql, [title, type, who, date, value, notes, subcategory]);
 
     try {
