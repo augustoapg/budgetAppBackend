@@ -1,12 +1,7 @@
 const express = require('express');
 const server = express();
-const transactionDao = require('./daos/transactionDao');
-const categoryDao = require('./daos/categoryDao')
-const tagDao = require('./daos/tagDao')
-const Transaction = require('./models/transaction');
+const dbUtils = require('./helpers/dbUtils');
 const { handleError, ErrorHandler } = require('./helpers/error');
-
-const transactionController = require('./controllers/transactionController');
 
 const routes = require('./routes/index.route');
 server.use(express.json());
@@ -34,24 +29,5 @@ server.listen(4242, () => {
     console.log('Server running...')
 });
 
-createAndPopulateTables();
-
-async function createAndPopulateTables() {
-    try {
-        const isCategoryTableNew = await categoryDao.createCategoryTable();
-        console.log(isCategoryTableNew ? 'Table Category was created' : 'Table Category was already created');
-        const isSubcategoryTableNew = await categoryDao.createSubCategoryTable();
-        console.log(isSubcategoryTableNew ? 'Table Subcategory was created' : 'Table Subcategory was already created');
-        const isTransactionTableNew = await transactionDao.createTransactionTable();
-        console.log(isTransactionTableNew ? 'Table Transaction was created' : 'Table Transaction was already created');
-        const isTagTableNew = await tagDao.createTagTable();
-        console.log(isTagTableNew ? 'Table Tag was created' : 'Table Tag was already created');
-
-        if (isCategoryTableNew) {
-            const categoryTablePopulation = await categoryDao.populateCategoryTable();
-            console.log(`Table category has been populated with: ${categoryTablePopulation.info}`);
-        }
-    } catch (e) {
-        console.log(e.message);
-    }
-}
+// initialize tables, if not yet initialized
+dbUtils.createAndPopulateTables();

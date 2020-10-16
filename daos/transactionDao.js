@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const dbConfig = require('../config/dbConfig');
+const dbUtils = require('../helpers/dbUtils');
 
 const createTransactionTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS transactions (
@@ -62,83 +63,21 @@ const getAllTransactions = async () => {
     }
 }
 
-const getTransactionById = async (id) => {
-    const querySql = 'SELECT * from transactions where id=?';
-
-    try {
-        return executeQuery(querySql, [id]);
-    } catch (error) {
-        throw error;
-    }
-}
-
 const getTransactionBy = async (queryObj) => {  
     let querySql = 'SELECT * from transactions';
-    let queryParams = getParams(queryObj);
+    let queryParams = dbUtils.getParams(queryObj);
 
     if (queryParams.length > 0) {
-        querySql += buildWhereStatement(queryObj, 'AND');            
+        querySql += dbUtils.buildWhereStatement(queryObj, 'AND');            
     
         try {
-            return executeQuery(querySql, queryParams);
+            return dbUtils.executeQuery(querySql, queryParams);
         } catch (error) {
             throw error;
         }
         
     } else {
         throw new Error('Invalid. All parameters were empty.');
-    }
-}
-
-const getParams = (queryObj) => {
-    let queryParams = [];
-    for (let key in queryObj) {
-        if(queryObj[key]) {
-            queryParams.push(queryObj[key]);
-        }
-    }
-    return queryParams;
-}
-
-const buildWhereStatement = (queryObj, condition = 'AND') => {
-    let whereStatement = ' where ';
-    let operator = '=';
-
-    for (let key in queryObj) {
-        if (queryObj[key]) {
-            if (key === 'dateMin' || key === 'valueMin') {
-                operator = '>=';
-                key = key.slice(0, key.length - 3); // removes Min to match column name
-            } else if (key === 'dateMax' || key === 'valueMax') {
-                operator = '<=';
-                key = key.slice(0, key.length - 3); // removes Max to match column name
-            }
-
-            whereStatement += `${key}${operator}? ${condition} `;
-            operator = '='; // reset
-        }
-    }
-
-    whereStatement = whereStatement.slice(0, whereStatement.length - 4); // removes last AND
-    return whereStatement;
-}
-
-const executeQuery = async (querySql, queryParams) => {
-    const connection = await mysql.createConnection(dbConfig);
-    const prepSql = mysql.format(querySql, queryParams);
-
-    try {
-        [result, fields] = await connection.query(prepSql);
-
-        if (result && result.length > 0 || result.affectedRows > 0) {
-            return result;
-        } else {
-            throw new Error(`No Transaction with those params was found`);
-        }
-    } catch (error) {
-        throw error;
-    } finally {
-        await connection.end();
     }
 }
 
@@ -149,7 +88,7 @@ const deleteTransaction = async (id) => {
         querySql += `id = ?`;            
     
         try {
-            return executeQuery(querySql, [id]);
+            return dbUtils.executeQuery(querySql, [id]);
         } catch (error) {
             throw error;
         }
@@ -177,7 +116,7 @@ const editTransaction = async (transaction) => {
     queryParams.push(transaction['id']);
     
     try {
-        return executeQuery(updateSql, queryParams);
+        return dbUtils.executeQuery(updateSql, queryParams);
     } catch (error) {
         throw error;
     }
@@ -187,7 +126,6 @@ module.exports = {
     createTransactionTable,
     addNewTransaction,
     getAllTransactions,
-    getTransactionById,
     getTransactionBy,
     deleteTransaction,
     editTransaction

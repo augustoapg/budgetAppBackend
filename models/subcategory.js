@@ -1,6 +1,4 @@
-
-
-class Subcategory {
+class SubCategory {
 
     constructor(id, name, categoryId) {
         this.id = id;
@@ -40,3 +38,5 @@ class Subcategory {
         }
     }
 }
+
+module.exports = SubCategory
