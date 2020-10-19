@@ -1,6 +1,6 @@
 const dao = require('../daos/categoryDao');
 const { handleError, ErrorHandler } = require('../helpers/error');
-const Category = require('../models/category')
+const Category = require('../models/category');
 
 const newCategory = async (req, res, next) => {
     const {name, type} = req.body;

@@ -1,7 +1,3 @@
-const transactionDao = require('../daos/transactionDao');
-const categoryDao = require('../daos/categoryDao');
-const subcategoryDao = require('../daos/subcategoryDao');
-const tagDao = require('../daos/tagDao');
 const mysql = require('mysql2/promise');
 const dbConfig = require('../config/dbConfig');
 
@@ -58,6 +54,11 @@ const executeQuery = async (querySql, queryParams) => {
 }
 
 async function createAndPopulateTables() {
+    const transactionDao = require('../daos/transactionDao');
+    const categoryDao = require('../daos/categoryDao');
+    const subcategoryDao = require('../daos/subcategoryDao');
+    const tagDao = require('../daos/tagDao');
+    
     try {
         const isCategoryTableNew = await categoryDao.createCategoryTable();
         console.log(isCategoryTableNew ? 'Table Category was created' : 'Table Category was already created');
@@ -69,7 +70,7 @@ async function createAndPopulateTables() {
         console.log(isTagTableNew ? 'Table Tag was created' : 'Table Tag was already created');
 
         if (isCategoryTableNew) {
-            const categoryTablePopulation = await categoryDao.populateCategoryTable();
+            // const categoryTablePopulation = await categoryDao.populateCategoryTable();
             console.log(`Table category has been populated with: ${categoryTablePopulation.info}`);
         }
     } catch (e) {
