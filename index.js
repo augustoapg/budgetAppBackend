@@ -1,6 +1,6 @@
 const express = require('express');
 const server = express();
-const dbUtils = require('./helpers/dbUtils');
+const dbInit = require('./helpers/dbInit');
 const { handleError, ErrorHandler } = require('./helpers/error');
 
 const routes = require('./routes/index.route');
@@ -30,4 +30,4 @@ server.listen(4242, () => {
 });
 
 // initialize tables, if not yet initialized
-dbUtils.createAndPopulateTables();
+dbInit.createAndPopulateTables();
