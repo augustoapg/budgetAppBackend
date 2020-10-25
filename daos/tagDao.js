@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const dbConfig = require('../config/dbConfig');
+const dbUtils = require('../helpers/dbUtils');
 
 const createTagTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS tag (
@@ -52,15 +53,13 @@ const createTransactionTagTable = async () => {
     }
 }
 
-const addNewTag = async (name, transactionId) => {
+const addNewTag = async (name) => {
     const connection = await mysql.createConnection(dbConfig);
-    const insertSql = 'INSERT INTO tag VALUES (?)';
+    const insertSql = 'INSERT INTO tag (name) VALUES (?)';
     const preparedInsert = mysql.format(insertSql, [name]);
 
     try {
-        [results, fields] = await connection.query(preparedInsert);
-        [resultsJunct] = await addNewTransactionTag(results.insertId, transactionId, connection);
-        
+        [results, fields] = await connection.query(preparedInsert);        
         return results.insertId;
     } catch (error) {
         throw error;
@@ -103,7 +102,7 @@ const getTagById = async (id) => {
     const querySql = 'SELECT * from tag where id=?';
 
     try {
-        return executeQuery(querySql, [id]);
+        return dbUtils.executeQuery(querySql, [id]);
     } catch (error) {
         throw error;
     }
@@ -117,7 +116,7 @@ const getTagBy = async (queryObj) => {
         querySql += buildWhereStatement(queryObj, 'AND');            
     
         try {
-            return executeQuery(querySql, queryParams);
+            return dbUtils.executeQuery(querySql, queryParams);
         } catch (error) {
             throw error;
         }
@@ -160,25 +159,6 @@ const buildWhereStatement = (queryObj, condition = 'AND') => {
     return whereStatement;
 }
 
-const executeQuery = async (querySql, queryParams) => {
-    const connection = await mysql.createConnection(dbConfig);
-    const prepSql = mysql.format(querySql, queryParams);
-
-    try {
-        [result, fields] = await connection.query(prepSql);
-
-        if (result && result.length > 0 || result.affectedRows > 0) {
-            return result;
-        } else {
-            throw new Error(`No Tag with those params was found`);
-        }
-    } catch (error) {
-        throw error;
-    } finally {
-        await connection.end();
-    }
-}
-
 const deleteTag = async (id) => {
     let queryJuncSql = 'DELETE FROM transaction_tag where ';
     let querySql = 'DELETE from tag where ';
@@ -188,8 +168,8 @@ const deleteTag = async (id) => {
         querySql += `id = ?`;            
     
         try {
-            await executeQuery(queryJuncSql, [id]);
-            return executeQuery(querySql, [id]);
+            await dbUtils.executeQuery(queryJuncSql, [id]);
+            return dbUtils.executeQuery(querySql, [id]);
         } catch (error) {
             throw error;
         }
@@ -199,25 +179,30 @@ const deleteTag = async (id) => {
     }
 };
 
-const editTag = async (tag) => {
+const editTag = async (id, tag) => {
     let updateSql = 'UPDATE tag';
     let queryParams = [];
 
     let setStatement = ' set ';
 
     for (let key in tag) {
-        if (tag[key]) {
+        // TODO: REPLACE THIS BY A BETTER VALIDATION
+        if (typeof(tag[key]) !== 'string' || (typeof(tag[key]) === 'string' && tag[key].trim() !== "")) {
             setStatement += `${key.replace('_', '')}=?,`;
             queryParams.push(tag[key]);
+        } else {
+            throw new Error(`Invalid. Field ${key} cannot be empty`);
         }
     }
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
     updateSql += setStatement + ' where id=?';
-    queryParams.push(tag['id']);
+    queryParams.push(id);
     
     try {
-        return executeQuery(updateSql, queryParams);
+        console.log(updateSql)
+        console.log(queryParams)
+        return dbUtils.executeQuery(updateSql, queryParams);
     } catch (error) {
         throw error;
     }

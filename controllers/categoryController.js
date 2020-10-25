@@ -64,7 +64,7 @@ const editCategory = async (req, res, next) => {
 const deleteCategory = async (req, res, next) => {
     try {
         const id = req.query.id;
-        const result = await dao.deleteCategory(id);
+        await dao.deleteCategory(id);
         res.send({
             message: `Category ${id} was deleted successfully` 
         });

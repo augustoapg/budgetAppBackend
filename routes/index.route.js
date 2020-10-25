@@ -3,9 +3,11 @@ const router = express.Router();
 const transactionsRoute = require('./transactions.route');
 const categoryRoute = require('./category.route');
 const subcategoryRoute = require('./subcategory.route');
+const tagRoute = require('./tag.route');
 
 router.use('/transactions', transactionsRoute);
 router.use('/category', categoryRoute);
 router.use('/subcategory', subcategoryRoute);
+router.use('/tag', tagRoute);
 
 module.exports = router;
