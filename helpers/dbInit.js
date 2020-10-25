@@ -3,7 +3,7 @@
     This is because DAO also requires dbUtils. So dbUtils would require a module that requires dbUtils.
 */
 
-async function createAndPopulateTables() {
+const createAndPopulateTables = async () => {
     const transactionDao = require('../daos/transactionDao');
     const categoryDao = require('../daos/categoryDao');
     const subcategoryDao = require('../daos/subcategoryDao');

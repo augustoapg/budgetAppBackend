@@ -80,6 +80,10 @@ const deleteSubCategory = async (id) => {
         try {
             return await dbUtils.executeQuery(querySql, [id]);
         } catch (error) {
+            if (error.code && error.code === 'ER_ROW_IS_REFERENCED_2') {
+                error.message = 'Cannot delete this subcategory because there is a transaction that uses it. Please edit or delete that transaction first.'
+            }
+            console.log(error)
             throw error;
         }
         
@@ -88,24 +92,31 @@ const deleteSubCategory = async (id) => {
     }
 }
 
-const editSubCategory = async (subcategory) => {
+const editSubCategory = async (id, subcategory) => {
     let updateSql = 'UPDATE subcategory';
     let queryParams = [];
 
     let setStatement = ' set ';
 
     for (let key in subcategory) {
-        if (subcategory[key]) {
-            setStatement += `${key.replace('_', '')}=?,`;
-            queryParams.push(subcategory[key]);
+        if (subcategory[key] != null) {
+            // TODO: REPLACE THIS BY A BETTER VALIDATION
+            if (typeof(subcategory[key]) !== 'string' || (typeof(subcategory[key]) === 'string' && subcategory[key].trim() !== "")) {
+                setStatement += `${key.replace('_', '')}=?,`;
+                queryParams.push(subcategory[key]);
+            } else {
+                throw new Error(`Invalid. Field ${key} cannot be empty`);
+            }
         }
     }
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
     updateSql += setStatement + ' where id=?';
-    queryParams.push(subcategory['id']);
-    
+    queryParams.push(id);
+
     try {
+        console.log(updateSql)
+        console.log(queryParams)
         return await dbUtils.executeQuery(updateSql, queryParams);
     } catch (error) {
         throw error;

@@ -44,12 +44,16 @@ const getBy = async (req, res, next) => {
 }
 
 const editSubCategory = async (req, res, next) => {
-    const {id, name, categoryId} = req.body;
+    let {id, name, categoryId} = req.body;
+
+    console.log(id)
 
     if (id) {
         try {
-            const newSubCategory = new SubCategory(id, name, categoryId);
-            await dao.editSubCategory(newSubCategory);
+            await dao.editSubCategory(id, {
+                name: name,
+                categoryId: categoryId
+            });
             res.send({
                 message: `SubCategory ${id} was updated successfully` 
             });

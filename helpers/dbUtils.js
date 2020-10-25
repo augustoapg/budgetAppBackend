@@ -40,12 +40,7 @@ const executeQuery = async (querySql, queryParams) => {
 
     try {
         [result, fields] = await connection.query(prepSql);
-
-        if (result && result.length > 0 || result.affectedRows > 0) {
-            return result;
-        } else {
-            throw new Error(`No object with those params was found`);
-        }
+        return result;
     } catch (error) {
         throw error;
     } finally {
@@ -53,11 +48,8 @@ const executeQuery = async (querySql, queryParams) => {
     }
 }
 
-
-
 module.exports = {
     getParams,
     buildWhereStatement,
-    executeQuery,
-    createAndPopulateTables
+    executeQuery
 }
