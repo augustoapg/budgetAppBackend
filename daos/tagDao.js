@@ -69,22 +69,6 @@ const addNewTag = async (name, color) => {
     }
 }
 
-const addNewTransactionTag = async (tagId, transactionId, connection) => {
-    const insertJunctionSql = 'INSERT INTO transaction_tag VALUES (?, ?)'
-
-    const preparedInsert = mysql.format(insertJunctionSql, [tagId, transactionId]);
-
-    try {
-        [results, fields] = await connection.query(preparedInsert);
-        
-        return results;
-    } catch (error) {
-        throw error;
-    } finally {
-        await connection.end();
-    }
-}
-
 const getAllTags = async () => {
     const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM tag';

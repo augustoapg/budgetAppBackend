@@ -3,10 +3,10 @@ const { handleError, ErrorHandler } = require('../helpers/error');
 const SubCategory = require('../models/subCategory')
 
 const newSubCategory = async (req, res, next) => {
-    const {name, categoryId} = req.body;
+    const {name, category} = req.body;
 
     try {
-        const newSubCategory = new SubCategory(null, name, categoryId);
+        const newSubCategory = new SubCategory(null, name, category);
         const id = await dao.addNewSubCategory(newSubCategory);
         res.send({
             id: id,
@@ -28,11 +28,11 @@ const getAll = async (req, res, next) => {
 
 const getBy = async (req, res, next) => {
     try {
-        const {id, name, categoryId} = req.query;
+        const {id, name, category} = req.query;
         const queryObj = {
             id: id,
             name: name,
-            categoryId: categoryId
+            category: category
         }
         
         const subCategory = await dao.getSubCategoryBy(queryObj);
@@ -44,7 +44,7 @@ const getBy = async (req, res, next) => {
 }
 
 const editSubCategory = async (req, res, next) => {
-    let {id, name, categoryId} = req.body;
+    let {id, name, category} = req.body;
 
     console.log(id)
 
@@ -52,7 +52,7 @@ const editSubCategory = async (req, res, next) => {
         try {
             await dao.editSubCategory(id, {
                 name: name,
-                categoryId: categoryId
+                category: category
             });
             res.send({
                 message: `SubCategory ${id} was updated successfully` 

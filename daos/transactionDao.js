@@ -49,6 +49,22 @@ const addNewTransaction = async (transaction) => {
     }
 }
 
+const addNewTransactionTag = async (tagId, transactionId) => {
+    const insertJunctionSql = 'INSERT INTO transaction_tag VALUES (?, ?)';
+    const connection = await mysql.createConnection(dbConfig);
+    const preparedInsert = mysql.format(insertJunctionSql, [tagId, transactionId]);
+
+    try {
+        [results, fields] = await connection.query(preparedInsert);
+        
+        return results;
+    } catch (error) {
+        throw error;
+    } finally {
+        await connection.end();
+    }
+}
+
 const getAllTransactions = async () => {
     const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM transactions';
@@ -122,11 +138,24 @@ const editTransaction = async (transaction) => {
     }
 };
 
+const editTransactionTag = async (id, tagId) => {
+    let updateSql = 'UPDATE transaction_tag set tagId=? where transactionId=?';
+    let queryParams = [id, tagId];
+    
+    try {
+        return dbUtils.executeQuery(updateSql, queryParams);
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     createTransactionTable,
     addNewTransaction,
+    addNewTransactionTag,
     getAllTransactions,
     getTransactionBy,
     deleteTransaction,
-    editTransaction
+    editTransaction,
+    editTransactionTag
 }

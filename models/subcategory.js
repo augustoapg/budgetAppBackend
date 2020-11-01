@@ -1,9 +1,9 @@
 class SubCategory {
 
-    constructor(id, name, categoryId) {
+    constructor(id, name, category) {
         this.id = id;
         this.name = name;
-        this.categoryId = categoryId;
+        this.category = category;
     }
 
     get id() {
@@ -26,15 +26,15 @@ class SubCategory {
         }
     }
 
-    get categoryId() {
-        return this._categoryId;
+    get category() {
+        return this._category;
     }
 
-    set categoryId(value) {
+    set category(value) {
         if (value) {
-            this._categoryId = value;
+            this._category = value;
         } else {
-            throw new Error('categoryId of subcategory cannot be empty');
+            throw new Error('category of subcategory cannot be empty');
         }
     }
 }

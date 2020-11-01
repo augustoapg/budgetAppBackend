@@ -6,8 +6,8 @@ const createSubCategoryTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS subcategory (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(50) NOT NULL UNIQUE,
-        categoryId INT NOT NULL,
-        CONSTRAINT fk_category FOREIGN KEY (categoryId) REFERENCES budget.category(id)
+        category INT NOT NULL,
+        CONSTRAINT fk_category FOREIGN KEY (category) REFERENCES budget.category(id)
     )`;
 
     const connection = await mysql.createConnection(dbConfig);
@@ -28,11 +28,11 @@ const createSubCategoryTable = async () => {
 }
 
 const addNewSubCategory = async (subcategory) => {
-    let {name, categoryId} = subcategory;
-    const insertSql = 'INSERT INTO subcategory (name, categoryId) VALUES (?, ?)';
+    let {name, category} = subcategory;
+    const insertSql = 'INSERT INTO subcategory (name, category) VALUES (?, ?)';
 
     try {
-        result = await dbUtils.executeQuery(insertSql, [name, categoryId]);
+        result = await dbUtils.executeQuery(insertSql, [name, category]);
         return result.insertId;
     } catch (error) {
         throw error;

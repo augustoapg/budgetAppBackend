@@ -82,7 +82,7 @@ const getAllCategories = async () => {
     }
 }
 
-const getCategoryBy = async (queryObj) => {  
+const getCategoryBy = async (queryObj) => {
     let querySql = 'SELECT * from category';
     let queryParams = dbUtils.getParams(queryObj);
 
