@@ -1,18 +1,23 @@
 const dao = require('../daos/transactionDao');
 const subcategoryDao = require('../daos/subCategoryDao');
 const categoryDao = require('../daos/categoryDao');
+const tagDao = require('../daos/tagDao');
 const { handleError, ErrorHandler } = require('../helpers/error');
 const Transaction = require('../models/transaction')
 
 const newTransaction = async (req, res, next) => {
-    const {type, who, subcategory, title, date, value, notes, tagId} = req.body;
+    const {type, who, subcategory, title, date, value, notes, tags} = req.body;
 
     try {
         const newTransaction = new Transaction(null, type, who, subcategory, title, date, value, notes);
         const id = await dao.addNewTransaction(newTransaction);
 
-        if (tagId != null && typeof(tagId) === "number") {
-            await dao.addNewTransactionTag(tagId, id);
+        if (tags != null) {
+            tags.forEach(async tagId => {
+                if (typeof(tagId) === "number") {
+                    await dao.addNewTransactionTag(tagId, id);
+                }
+            });
         }
         res.send({
             id: id,
@@ -26,13 +31,8 @@ const newTransaction = async (req, res, next) => {
 const getAll = async (req, res, next) => {
     try {
         const allTransactions = await dao.getAllTransactions();
-
-        for (i = 0; i < allTransactions.length; i++) {
-            let trans = allTransactions[i];
-            trans.subcategory = await subcategoryDao.getSubCategoryBy({id: trans.subcategory});
-            trans.subcategory[0].category = await categoryDao.getCategoryBy({id: trans.subcategory[0].category});
-        }
-        res.send(allTransactions);
+        const transactionsJSON = await createJSON(allTransactions);
+        res.send(transactionsJSON);
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }
@@ -53,9 +53,10 @@ const getBy = async (req, res, next) => {
             valueMax: valueMax
         }
         
-        const transaction = await dao.getTransactionBy(queryObj);
+        const transactions = await dao.getTransactionBy(queryObj);
+        const transactionsJSON = await createJSON(transactions);
 
-        res.send(transaction);
+        res.send(transactionsJSON);
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }
@@ -93,6 +94,27 @@ const deleteTransaction = async (req, res, next) => {
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }
+}
+
+const createJSON = async (transactions) => {
+    for (i = 0; i < transactions.length; i++) {
+        let trans = transactions[i];
+        trans.subcategory = await subcategoryDao.getSubCategoryBy({id: trans.subcategory});
+        trans.subcategory[0].category = await categoryDao.getCategoryBy({id: trans.subcategory[0].category});
+
+        let transTags = await dao.getTransactionTagBy({transactionId: trans.id});
+
+        if (transTags.length > 0) {
+            let tags = []
+            for (j = 0; j < transTags.length; j++) {
+                console.log(transTags[j])
+                let tag = await tagDao.getTagBy({id: transTags[j].tagId});
+                tags.push(tag[0]);
+            }
+            trans.tag = tags;
+        }
+    }
+    return transactions;
 }
 
 module.exports = {

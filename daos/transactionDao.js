@@ -59,6 +59,9 @@ const addNewTransactionTag = async (tagId, transactionId) => {
         
         return results;
     } catch (error) {
+        if (error.errno === 1452) {
+            error.message = "Tag was not found with this id. Please create tag first.";
+        }
         throw error;
     } finally {
         await connection.end();
@@ -81,6 +84,24 @@ const getAllTransactions = async () => {
 
 const getTransactionBy = async (queryObj) => {  
     let querySql = 'SELECT * from transactions';
+    let queryParams = dbUtils.getParams(queryObj);
+
+    if (queryParams.length > 0) {
+        querySql += dbUtils.buildWhereStatement(queryObj, 'AND');            
+    
+        try {
+            return dbUtils.executeQuery(querySql, queryParams);
+        } catch (error) {
+            throw error;
+        }
+        
+    } else {
+        throw new Error('Invalid. All parameters were empty.');
+    }
+}
+
+const getTransactionTagBy = async (queryObj) => {  
+    let querySql = 'SELECT * from transaction_tag';
     let queryParams = dbUtils.getParams(queryObj);
 
     if (queryParams.length > 0) {
@@ -155,6 +176,7 @@ module.exports = {
     addNewTransactionTag,
     getAllTransactions,
     getTransactionBy,
+    getTransactionTagBy,
     deleteTransaction,
     editTransaction,
     editTransactionTag
