@@ -5,7 +5,8 @@ const dbUtils = require('../helpers/dbUtils');
 const createTagTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS tag (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(70) NOT NULL
+        name VARCHAR(70) NOT NULL,
+        color VARCHAR(70) NOT NULL
     )`;
 
     const connection = await mysql.createConnection(dbConfig);
@@ -53,10 +54,10 @@ const createTransactionTagTable = async () => {
     }
 }
 
-const addNewTag = async (name) => {
+const addNewTag = async (name, color) => {
     const connection = await mysql.createConnection(dbConfig);
-    const insertSql = 'INSERT INTO tag (name) VALUES (?)';
-    const preparedInsert = mysql.format(insertSql, [name]);
+    const insertSql = 'INSERT INTO tag (name, color) VALUES (?, ?)';
+    const preparedInsert = mysql.format(insertSql, [name, color]);
 
     try {
         [results, fields] = await connection.query(preparedInsert);        

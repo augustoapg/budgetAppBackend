@@ -3,12 +3,12 @@ const dao = require('../daos/tagDao');
 const { ErrorHandler } = require('../helpers/error');
 
 const newTag = async (req, res, next) => {
-    const {name} = req.body;
+    const {name, color} = req.body;
     
     try {
         // TODO: RETHINK THIS
-        const tag = new Tag(null, name);
-        const id = await dao.addNewTag(tag.name);
+        const tag = new Tag(null, name, color);
+        const id = await dao.addNewTag(tag.name, tag.color);
         res.send({
             id: id,
             message: `Tag added with id ${id}`
@@ -28,10 +28,11 @@ const getAll = async (req, res, next) => {
 }
 
 const getBy = async (req, res, next) => {
-    const {id, name} = req.query;
+    const {id, name, color} = req.query;
     const queryObject = {
         id: id,
-        name: name
+        name: name,
+        color: color
     };
 
     try {
@@ -43,14 +44,19 @@ const getBy = async (req, res, next) => {
 }
 
 const editTag = async (req, res, next) => {
-    const {id, name} = req.body;
+    const {id, name, color} = req.body;
 
     try {
-        if (id != null && (name != null && typeof(name) === 'string' && name.trim() != '')) {
-            await dao.editTag(id, {name: name});
+        if (id != null && (name != null && typeof(name) === 'string' && name.trim() != '') || (color != null && typeof(color) === 'string' && color.trim() != '')) {
+            await dao.editTag(id, {
+                name: name,
+                color: color
+            });
             res.send({
                 message: `Tag ${id} was updated successfully` 
             });
+        } else {
+            next(new ErrorHandler(500, "Neither name nor color can be empty."));
         }
     } catch (e) {
         next(new ErrorHandler(500, e.message));

@@ -30,4 +30,9 @@ server.listen(4242, () => {
 });
 
 // initialize tables, if not yet initialized
-dbInit.createAndPopulateTables();
+try {
+    dbInit.createAndPopulateTables();
+} catch (e) {
+    next(new ErrorHandler(500, e.message));
+}
+

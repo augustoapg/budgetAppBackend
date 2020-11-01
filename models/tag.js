@@ -1,7 +1,8 @@
 class Tag {
-    constructor(id, name) {
+    constructor(id, name, color) {
         this._id = id;
         this._name = name;
+        this._color = color;
     }
 
     get id() {
@@ -21,6 +22,18 @@ class Tag {
             this._name = value;
         } else {
             throw new Error('Name of tag cannot be empty');
+        }
+    }
+
+    get color() {
+        return this._color;
+    }
+
+    set color(value) {
+        if (value) {
+            this._color = value;
+        } else {
+            throw new Error('Color of tag cannot be empty');
         }
     }
 }
