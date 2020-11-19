@@ -37,6 +37,8 @@ const buildWhereStatement = (queryObj, condition = 'AND') => {
 const executeQuery = async (querySql, queryParams) => {
     const connection = await mysql.createConnection(dbConfig);
     const prepSql = mysql.format(querySql, queryParams);
+    let result = "";
+    let fields = "";
 
     try {
         [result, fields] = await connection.query(prepSql);

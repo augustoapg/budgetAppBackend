@@ -19,7 +19,7 @@ const createTransactionTable = async () => {
     let results = null;
 
     try {
-        [results, fields] = await connection.query(sql);
+        [results, fields] = await connection.execute(sql);
     } catch (error) {
         throw error;
     } finally {
@@ -71,15 +71,18 @@ const addNewTransactionTag = async (tagId, transactionId) => {
 const getAllTransactions = async () => {
     const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM transactions';
+    let results = "";   
+    let fields = ""; 
 
     try {
         [results, fields] = await connection.query(querySql);
+        // console.log(results);
     } catch (error) {
         throw error;
     } finally {
         await connection.end();
-        return results;
     }
+    return results;
 }
 
 const getTransactionBy = async (queryObj) => {  
@@ -96,7 +99,7 @@ const getTransactionBy = async (queryObj) => {
         }
         
     } else {
-        throw new Error('Invalid. All parameters were empty.');
+        throw new Error('Invalid. All transaction parameters were empty.');
     }
 }
 
@@ -114,7 +117,7 @@ const getTransactionTagBy = async (queryObj) => {
         }
         
     } else {
-        throw new Error('Invalid. All parameters were empty.');
+        throw new Error('Invalid. All transactionTag parameters were empty.');
     }
 }
 

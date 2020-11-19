@@ -3,7 +3,8 @@ const subcategoryDao = require('../daos/subCategoryDao');
 const categoryDao = require('../daos/categoryDao');
 const tagDao = require('../daos/tagDao');
 const { handleError, ErrorHandler } = require('../helpers/error');
-const Transaction = require('../models/transaction')
+const Transaction = require('../models/transaction');
+const { validate } = require('../helpers/dataValidator');
 
 const newTransaction = async (req, res, next) => {
     const {type, who, subcategory, title, date, value, notes, tags} = req.body;
@@ -63,24 +64,26 @@ const getBy = async (req, res, next) => {
 }
 
 const editTransaction = async (req, res, next) => {
-    const {id, type, who, subcategory, title, date, value, notes, tagId} = req.body;
+    const fieldsToBeEdited = req.body;
 
-    if (id) {
+    if (fieldsToBeEdited.id) {
         try {
-            const newTransaction = new Transaction(id, type, who, subcategory, title, date, value, notes);
-            await dao.editTransaction(newTransaction);
+            if (validate(Transaction.dataDef, fieldsToBeEdited)) {
+                await dao.editTransaction(fieldsToBeEdited);
 
-            if (tagId != null && typeof(tagId === "number")) {
-                await dao.editTransactionTag(id, tagId);
+                if (fieldsToBeEdited.tagId != null && typeof(fieldsToBeEdited.tagId === "number")) {
+                    await dao.editTransactionTag(id, fieldsToBeEdited.tagId);
+                }
+                res.send({
+                    message: `Transaction ${fieldsToBeEdited.id} was updated successfully` 
+                });
             }
-            res.send({
-                message: `Transaction ${id} was updated successfully` 
-            });
+            
         } catch (e) {
             next(new ErrorHandler(500, e.message));
         }
     } else {
-        next(new ErrorHandler(500, 'Id cannot be empty'));
+        next(new ErrorHandler(500, 'Transaction id cannot be empty'));
     }
 }
 
@@ -97,7 +100,7 @@ const deleteTransaction = async (req, res, next) => {
 }
 
 const createJSON = async (transactions) => {
-    for (i = 0; i < transactions.length; i++) {
+    for (let i = 0; i < transactions.length; i++) {
         let trans = transactions[i];
         trans.subcategory = await subcategoryDao.getSubCategoryBy({id: trans.subcategory});
         trans.subcategory[0].category = await categoryDao.getCategoryBy({id: trans.subcategory[0].category});
@@ -106,7 +109,7 @@ const createJSON = async (transactions) => {
 
         if (transTags.length > 0) {
             let tags = []
-            for (j = 0; j < transTags.length; j++) {
+            for (let j = 0; j < transTags.length; j++) {
                 console.log(transTags[j])
                 let tag = await tagDao.getTagBy({id: transTags[j].tagId});
                 tags.push(tag[0]);
