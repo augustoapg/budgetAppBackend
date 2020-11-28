@@ -7,32 +7,36 @@
  */
 const validate = (dataDef, transactionFields) => {
     for (const key in transactionFields) {
-        let value = transactionFields[key];
-        if (dataDef[key].type === "string") {
-            if (!dataDef[key].canBeEmpty && isStringEmpty(value)) {
-                throw new Error(`Field ${key} cannot be empty.`);
-            }
-        } else if (dataDef[key].type === "number") {
-            // TODO: Add check for negative
-            if (typeof value !== "number") {
-                throw new Error(`Field ${key} has to be a number.`);
-            }
-            if (!dataDef[key].canBeEmpty && !value) {
-                throw new Error(`Field ${key} cannot be empty.`);
-            }
-        } else if (dataDef[key].type === "date") {
-            try {
-                const dateVal = new Date(value);
-                if (!dateVal || !(dateVal instanceof Date)) {
+        if (key in dataDef) {
+            let value = transactionFields[key];
+            if (dataDef[key].type === "string") {
+                if (!dataDef[key].canBeEmpty && isStringEmpty(value)) {
+                    throw new Error(`Field ${key} cannot be empty.`);
+                }
+            } else if (dataDef[key].type === "number") {
+                // TODO: Add check for negative
+                if (typeof value !== "number") {
+                    throw new Error(`Field ${key} has to be a number.`);
+                }
+                if (!dataDef[key].canBeEmpty && !value) {
+                    throw new Error(`Field ${key} cannot be empty.`);
+                }
+            } else if (dataDef[key].type === "date") {
+                try {
+                    const dateVal = new Date(value);
+                    if (!dateVal || !(dateVal instanceof Date)) {
+                        throw new Error(`Field ${key} has to be a valid date.`);
+                    }
+                } catch (error) {
                     throw new Error(`Field ${key} has to be a valid date.`);
                 }
-            } catch (error) {
-                throw new Error(`Field ${key} has to be a valid date.`);
+            } else {
+                if (!dataDef[key].canBeEmpty && !value) {
+                    throw new Error(`Field ${key} cannot be empty.`);
+                }
             }
         } else {
-            if (!dataDef[key].canBeEmpty && !value) {
-                throw new Error(`Field ${key} cannot be empty`);
-            }
+            throw new Error(`Field ${key} is not a valid option.`)
         }
     }
     return true;

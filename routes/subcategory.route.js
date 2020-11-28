@@ -6,7 +6,7 @@ const subcategoryController = require('../controllers/subcategoryController')
 router.route('/')
     .post(subcategoryController.newSubCategory)
     .get(subcategoryController.getAll)
-    .put(subcategoryController.editSubCategory)
+    .patch(subcategoryController.editSubCategory)
     .delete(subcategoryController.deleteSubCategory);
 
 router.route('/getBy').get(subcategoryController.getBy);

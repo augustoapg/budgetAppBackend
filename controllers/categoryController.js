@@ -1,17 +1,17 @@
 const dao = require('../daos/categoryDao');
 const { handleError, ErrorHandler } = require('../helpers/error');
 const Category = require('../models/category');
+const { validate } = require('../helpers/dataValidator');
 
 const newCategory = async (req, res, next) => {
-    const {name, type} = req.body;
-
     try {
-        const newCategory = new Category(null, name, type);
-        const id = await dao.addNewCategory(newCategory);
-        res.send({
-            id: id,
-            message: `Category added with id ${id}`
-        });
+        if (validate(Category.dataDef, req.body)) {
+            const id = await dao.addNewCategory(req.body);
+            res.send({
+                id: id,
+                message: `Category added with id ${id}`
+            });
+        }
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }    
@@ -44,20 +44,15 @@ const getBy = async (req, res, next) => {
 }
 
 const editCategory = async (req, res, next) => {
-    const {id, name, type} = req.body;
-
-    if (id) {
-        try {
-            const newCategory = new Category(id, name, type);
-            await dao.editCategory(newCategory);
+    try {
+        if (validate(Category.dataDef, req.body)) {
+            await dao.editCategory(req.body);
             res.send({
                 message: `Category ${id} was updated successfully` 
             });
-        } catch (e) {
-            next(new ErrorHandler(500, e.message));
         }
-    } else {
-        next(new ErrorHandler(500, 'Id cannot be empty'));
+    } catch (e) {
+        next(new ErrorHandler(500, e.message));
     }
 }
 

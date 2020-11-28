@@ -55,31 +55,23 @@ const createTransactionTagTable = async () => {
 }
 
 const addNewTag = async (name, color) => {
-    const connection = await mysql.createConnection(dbConfig);
     const insertSql = 'INSERT INTO tag (name, color) VALUES (?, ?)';
-    const preparedInsert = mysql.format(insertSql, [name, color]);
 
     try {
-        [results, fields] = await connection.query(preparedInsert);        
-        return results.insertId;
+        const result = await dbUtils.executeQuery(insertSql, [name, color]);
+        return result.insertId;
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
     }
 }
 
 const getAllTags = async () => {
-    const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM tag';
 
     try {
-        [results, fields] = await connection.query(querySql);
+        return await dbUtils.executeQuery(querySql, []);
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-        return results;
     }
 }
 
@@ -98,7 +90,7 @@ const getTagBy = async (queryObj) => {
     let queryParams = getParams(queryObj);
 
     if (queryParams.length > 0) {
-        querySql += buildWhereStatement(queryObj, 'AND');            
+        querySql += dbUtils.buildWhereStatement(queryObj, 'AND');            
     
         try {
             return dbUtils.executeQuery(querySql, queryParams);
@@ -121,29 +113,6 @@ const getParams = (queryObj) => {
     return queryParams;
 }
 
-const buildWhereStatement = (queryObj, condition = 'AND') => {
-    let whereStatement = ' where ';
-    let operator = '=';
-
-    for (let key in queryObj) {
-        if (queryObj[key]) {
-            if (key === 'dateMin' || key === 'valueMin') {
-                operator = '>=';
-                key = key.slice(0, key.length - 3); // removes Min to match column name
-            } else if (key === 'dateMax' || key === 'valueMax') {
-                operator = '<=';
-                key = key.slice(0, key.length - 3); // removes Max to match column name
-            }
-
-            whereStatement += `${key}${operator}? ${condition} `;
-            operator = '='; // reset
-        }
-    }
-
-    whereStatement = whereStatement.slice(0, whereStatement.length - 4); // removes last AND
-    return whereStatement;
-}
-
 const deleteTag = async (id) => {
     let queryJuncSql = 'DELETE FROM transaction_tag where ';
     let querySql = 'DELETE from tag where ';
@@ -164,7 +133,7 @@ const deleteTag = async (id) => {
     }
 };
 
-const editTag = async (id, tag) => {
+const editTag = async (tag) => {
     let updateSql = 'UPDATE tag';
     let queryParams = [];
 
@@ -182,11 +151,9 @@ const editTag = async (id, tag) => {
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
     updateSql += setStatement + ' where id=?';
-    queryParams.push(id);
     
     try {
-        console.log(updateSql)
-        console.log(queryParams)
+        queryParams.push(tag.id);
         return dbUtils.executeQuery(updateSql, queryParams);
     } catch (error) {
         throw error;

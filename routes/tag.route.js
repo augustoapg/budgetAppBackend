@@ -5,7 +5,7 @@ const tagController = require('../controllers/tagController');
 router.route('/')
     .post(tagController.newTag)
     .get(tagController.getAll)
-    .put(tagController.editTag)
+    .patch(tagController.editTag)
     .delete(tagController.deleteTag);
 
 router.route('/getBy').get(tagController.getBy);

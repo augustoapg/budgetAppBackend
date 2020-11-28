@@ -32,7 +32,7 @@ const addNewSubCategory = async (subcategory) => {
     const insertSql = 'INSERT INTO subcategory (name, category) VALUES (?, ?)';
 
     try {
-        result = await dbUtils.executeQuery(insertSql, [name, category]);
+        const result = await dbUtils.executeQuery(insertSql, [name, category]);
         return result.insertId;
     } catch (error) {
         throw error;
@@ -40,16 +40,12 @@ const addNewSubCategory = async (subcategory) => {
 }
 
 const getAllSubCategories = async () => {
-    const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM subcategory';
 
     try {
-        [results, fields] = await connection.query(querySql);
+        return await dbUtils.executeQuery(querySql, []);
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-        return results;
     }
 }
 
@@ -92,7 +88,7 @@ const deleteSubCategory = async (id) => {
     }
 }
 
-const editSubCategory = async (id, subcategory) => {
+const editSubCategory = async (subcategory) => {
     let updateSql = 'UPDATE subcategory';
     let queryParams = [];
 
@@ -112,11 +108,9 @@ const editSubCategory = async (id, subcategory) => {
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
     updateSql += setStatement + ' where id=?';
-    queryParams.push(id);
-
+    
     try {
-        console.log(updateSql)
-        console.log(queryParams)
+        queryParams.push(subcategory.id);
         return await dbUtils.executeQuery(updateSql, queryParams);
     } catch (error) {
         throw error;

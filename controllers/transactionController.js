@@ -7,23 +7,27 @@ const Transaction = require('../models/transaction');
 const { validate } = require('../helpers/dataValidator');
 
 const newTransaction = async (req, res, next) => {
-    const {type, who, subcategory, title, date, value, notes, tags} = req.body;
-
     try {
-        const newTransaction = new Transaction(null, type, who, subcategory, title, date, value, notes);
-        const id = await dao.addNewTransaction(newTransaction);
-
-        if (tags != null) {
-            tags.forEach(async tagId => {
-                if (typeof(tagId) === "number") {
-                    await dao.addNewTransactionTag(tagId, id);
-                }
+        let tags = null;
+        if ("tags" in req.body) {
+            tags = req.body.tags;
+            delete req.body.tags;
+        }
+        if (validate(Transaction.dataDef, req.body)) {
+            const id = await dao.addNewTransaction(req.body);
+    
+            if (tags != null) {
+                tags.forEach(async tagId => {
+                    if (typeof(tagId) === "number") {
+                        await dao.addNewTransactionTag(tagId, id);
+                    }
+                });
+            }
+            res.send({
+                id: id,
+                message: `Transaction added with id ${id}`
             });
         }
-        res.send({
-            id: id,
-            message: `Transaction added with id ${id}`
-        });
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }    
@@ -99,6 +103,7 @@ const deleteTransaction = async (req, res, next) => {
     }
 }
 
+// creates JSON to be sent back, including sub-objects (subcategory and category)
 const createJSON = async (transactions) => {
     for (let i = 0; i < transactions.length; i++) {
         let trans = transactions[i];

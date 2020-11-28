@@ -52,33 +52,24 @@ const populateCategoryTable = async () => {
 }
 
 const addNewCategory = async (category) => {
-    let {name, type} = category;
-    const connection = await mysql.createConnection(dbConfig);
-
+    const {name, type} = category;
     const insertSql = 'INSERT INTO category (name, type) VALUES (?, ?)';
-    const preparedInsert = mysql.format(insertSql, [name, type]);
 
     try {
-        [results, fields] = await connection.query(preparedInsert);
-        return results.insertId;
+        const result = await dbUtils.executeQuery(insertSql, [name, type]);
+        return result.insertId;
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
     }
 }
 
 const getAllCategories = async () => {
-    const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM category';
 
     try {
-        [results, fields] = await connection.query(querySql);
+        return await dbUtils.executeQuery(querySql, []);
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-        return results;
     }
 }
 

@@ -34,55 +34,40 @@ const createTransactionTable = async () => {
 
 const addNewTransaction = async (transaction) => {
     let {type, who, subcategory, title, date, value, notes} = transaction;
-    const connection = await mysql.createConnection(dbConfig);
 
     const insertSql = 'INSERT INTO transactions (title, type, who, date, value, notes, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const preparedInsert = mysql.format(insertSql, [title, type, who, date, value, notes, subcategory]);
 
     try {
-        [results, fields] = await connection.query(preparedInsert);
-        return results.insertId;
+        const result = await dbUtils.executeQuery(insertSql, [title, type, who, date, value, notes, subcategory]);
+        return result.insertId;
     } catch (error) {
+        console.log(error);
         throw error;
-    } finally {
-        await connection.end();
     }
 }
 
 const addNewTransactionTag = async (tagId, transactionId) => {
     const insertJunctionSql = 'INSERT INTO transaction_tag VALUES (?, ?)';
-    const connection = await mysql.createConnection(dbConfig);
-    const preparedInsert = mysql.format(insertJunctionSql, [tagId, transactionId]);
 
     try {
-        [results, fields] = await connection.query(preparedInsert);
-        
-        return results;
+        const result = await dbUtils.executeQuery(insertJunctionSql, [tagId, transactionId]);
+        return result;
     } catch (error) {
         if (error.errno === 1452) {
             error.message = "Tag was not found with this id. Please create tag first.";
         }
         throw error;
-    } finally {
-        await connection.end();
     }
 }
 
 const getAllTransactions = async () => {
-    const connection = await mysql.createConnection(dbConfig);
     const querySql = 'SELECT * FROM transactions';
-    let results = "";   
-    let fields = ""; 
 
     try {
-        [results, fields] = await connection.query(querySql);
-        // console.log(results);
+        return await dbUtils.executeQuery(querySql, []);
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
     }
-    return results;
 }
 
 const getTransactionBy = async (queryObj) => {  

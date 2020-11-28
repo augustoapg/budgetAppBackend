@@ -1,17 +1,17 @@
 const dao = require('../daos/subCategoryDao.js');
 const { handleError, ErrorHandler } = require('../helpers/error');
-const SubCategory = require('../models/subCategory')
+const SubCategory = require('../models/subCategory');
+const { validate } = require('../helpers/dataValidator');
 
 const newSubCategory = async (req, res, next) => {
-    const {name, category} = req.body;
-
     try {
-        const newSubCategory = new SubCategory(null, name, category);
-        const id = await dao.addNewSubCategory(newSubCategory);
-        res.send({
-            id: id,
-            message: `SubCategory added with id ${id}`
-        });
+        if (validate(SubCategory.dataDef, req.body)) {
+            const id = await dao.addNewSubCategory(req.body);
+            res.send({
+                id: id,
+                message: `SubCategory added with id ${id}`
+            });
+        }
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }    
@@ -44,19 +44,16 @@ const getBy = async (req, res, next) => {
 }
 
 const editSubCategory = async (req, res, next) => {
-    let {id, name, category} = req.body;
-
-    console.log(id)
+    let {id} = req.body;
 
     if (id) {
         try {
-            await dao.editSubCategory(id, {
-                name: name,
-                category: category
-            });
-            res.send({
-                message: `SubCategory ${id} was updated successfully` 
-            });
+            if (validate(SubCategory.dataDef, req.body)) {
+                await dao.editSubCategory(req.body);
+                res.send({
+                    message: `SubCategory ${id} was updated successfully` 
+                });
+            }
         } catch (e) {
             next(new ErrorHandler(500, e.message));
         }

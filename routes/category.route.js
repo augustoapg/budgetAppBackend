@@ -6,7 +6,7 @@ const categoryController = require('../controllers/categoryController');
 router.route('/')
     .post(categoryController.newCategory)
     .get(categoryController.getAll)
-    .put(categoryController.editCategory)
+    .patch(categoryController.editCategory)
     .delete(categoryController.deleteCategory);
 
 router.route('/getBy').get(categoryController.getBy);
