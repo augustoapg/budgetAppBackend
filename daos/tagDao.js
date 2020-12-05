@@ -87,7 +87,7 @@ const getTagById = async (id) => {
 
 const getTagBy = async (queryObj) => {  
     let querySql = 'SELECT * from tag';
-    let queryParams = getParams(queryObj);
+    let queryParams = dbUtils.getParams(queryObj);
 
     if (queryParams.length > 0) {
         querySql += dbUtils.buildWhereStatement(queryObj, 'AND');            
@@ -101,16 +101,6 @@ const getTagBy = async (queryObj) => {
     } else {
         throw new Error('Invalid. All parameters were empty.');
     }
-}
-
-const getParams = (queryObj) => {
-    let queryParams = [];
-    for (let key in queryObj) {
-        if(queryObj[key]) {
-            queryParams.push(queryObj[key]);
-        }
-    }
-    return queryParams;
 }
 
 const deleteTag = async (id) => {

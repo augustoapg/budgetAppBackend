@@ -50,8 +50,28 @@ const executeQuery = async (querySql, queryParams) => {
     }
 }
 
+const executeSqlCreateTable = async (sql) => {
+    const connection = await mysql.createConnection(dbConfig);
+    let results = null;
+
+    try {
+        [results, fields] = await connection.query(sql);
+    } catch (error) {
+        throw error;
+    } finally {
+        await connection.end();
+
+        if (results && results.warningStatus !== 0) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
 module.exports = {
     getParams,
     buildWhereStatement,
-    executeQuery
+    executeQuery,
+    executeSqlCreateTable
 }

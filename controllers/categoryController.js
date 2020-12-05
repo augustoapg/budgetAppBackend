@@ -48,7 +48,7 @@ const editCategory = async (req, res, next) => {
         if (validate(Category.dataDef, req.body)) {
             await dao.editCategory(req.body);
             res.send({
-                message: `Category ${id} was updated successfully` 
+                message: `Category ${req.body.id} was updated successfully` 
             });
         }
     } catch (e) {
