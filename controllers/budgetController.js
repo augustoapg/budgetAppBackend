@@ -28,10 +28,11 @@ const getAll = async (req, res, next) => {
 
 const getBy = async (req, res, next) => {
     try {
-        const {subcategory, month} = req.query;
+        const {subcategory, month,value} = req.query;
         const queryObj = {
             subcategory: subcategory,
-            month: month
+            month: month,
+            value: value
         }
         
         const budget = await dao.getBudgetBy(queryObj);
