@@ -32,6 +32,7 @@ const getBy = async (req, res, next) => {
         const queryObj = {
             subcategory: subcategory,
             month: month,
+            year: year,
             value: value
         }
         
@@ -48,7 +49,7 @@ const editBudget = async (req, res, next) => {
         if (validate(Budget.dataDef, req.body)) {
             await dao.editBudget(req.body);
             res.send({
-                message: `Budget ${req.body.subcategory}/${req.body.month} was updated successfully` 
+                message: `Budget ${req.body.subcategory} - ${req.body.month}/${req.body.year} was updated successfully` 
             });
         }
     } catch (e) {
@@ -60,7 +61,7 @@ const deleteBudget = async (req, res, next) => {
     try {
         await dao.deleteBudget(req.body.subcategory, req.body.month);
         res.send({
-            message: `Budget ${req.body.subcategory}/${req.body.month} was deleted successfully` 
+            message: `Budget ${req.body.subcategory} - ${req.body.month}/${req.body.year} was deleted successfully` 
         });
     } catch (e) {
         next(new ErrorHandler(500, e.message));

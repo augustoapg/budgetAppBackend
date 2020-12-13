@@ -48,7 +48,7 @@ const editCategory = async (req, res, next) => {
         if (validate(Category.dataDef, req.body)) {
             await dao.editCategory(req.body);
             res.send({
-                message: `Category ${req.body.id} was updated successfully` 
+                message: `Category ${req.body.name} was updated successfully` 
             });
         }
     } catch (e) {
@@ -58,10 +58,10 @@ const editCategory = async (req, res, next) => {
 
 const deleteCategory = async (req, res, next) => {
     try {
-        const id = req.query.id;
-        await dao.deleteCategory(id);
+        const name = req.query.name;
+        await dao.deleteCategory(name);
         res.send({
-            message: `Category ${id} was deleted successfully` 
+            message: `Category ${name} was deleted successfully` 
         });
     } catch (e) {
         next(new ErrorHandler(500, e.message));

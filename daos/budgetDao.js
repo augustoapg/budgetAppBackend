@@ -3,8 +3,10 @@ const dbUtils = require('../helpers/dbUtils');
 const createBudgetTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS budget (
         subcategory INT NOT NULL,
-        month VARCHAR2(20) NOT NULL,
-        PRIMARY KEY (subcategory, month),
+        month INT NOT NULL,
+        year INT NOT NULL,
+        value DOUBLE(8,2) NOT NULL,
+        PRIMARY KEY (subcategory, month, year),
         FOREIGN KEY (subcategory) REFERENCES budget.subcategory(id)
     )`;
 
@@ -15,11 +17,11 @@ const createBudgetTable = async () => {
     }
 }
 
-const addNewBudget = async (subcategory, month) => {
-    const insertSql = 'INSERT INTO budget (subcategory, month) VALUES (?, ?)';
+const addNewBudget = async (subcategory, month, year) => {
+    const insertSql = 'INSERT INTO budget (subcategory, month, year) VALUES (?, ?, ?)';
 
     try {
-        const result = await dbUtils.executeQuery(insertSql, [subcategory, month]);
+        const result = await dbUtils.executeQuery(insertSql, [subcategory, month, year]);
         return result.insertId; // TODO: validate this for a composite key object
     } catch (error) {
         throw error;
@@ -54,14 +56,14 @@ const getBudgetBy = async (queryObj) => {
     }
 }
 
-const deleteBudget = async (subcategory, month) => {
+const deleteBudget = async (subcategory, month, year) => {
     let querySql = 'DELETE from budget where ';
 
     if (subcategory && month) {
         querySql += `subcategory = ? AND month`;            
     
         try {
-            return await dbUtils.executeQuery(querySql, [subcategory, month]);
+            return await dbUtils.executeQuery(querySql, [subcategory, month, year]);
         } catch (error) {
             throw error;
         }
@@ -88,10 +90,10 @@ const editBudget = async (budget) => {
     }
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
-    updateSql += setStatement + ' where subcategory=? and month=?';
+    updateSql += setStatement + ' where subcategory=? and month=? and year=?';
     
     try {
-        queryParams.push(budget.subcategory, budget.month);
+        queryParams.push(budget.subcategory, budget.month, budget.year);
         return dbUtils.executeQuery(updateSql, queryParams);
     } catch (error) {
         throw error;

@@ -5,7 +5,11 @@ class Budget {
             canBeEmpty: false
         },
         month: {
-            type: "string",
+            type: "int",
+            canBeEmpty: false
+        },
+        year: {
+            type: "int",
             canBeEmpty: false
         },
         value: {
@@ -14,9 +18,10 @@ class Budget {
         }
     }
 
-    constructor (subcategory, month, value) {
+    constructor (subcategory, month, year, value) {
         this.subcategory = subcategory;
         this.month = month;
+        this.year = year;
         this.value = value;
     }
 }

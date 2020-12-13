@@ -19,7 +19,11 @@ const newTransaction = async (req, res, next) => {
             if (tags != null) {
                 tags.forEach(async tagId => {
                     if (typeof(tagId) === "number") {
-                        await dao.addNewTransactionTag(tagId, id);
+                        try {
+                            await dao.addNewTransactionTag(tagId, id);
+                        } catch (error) {
+                            next(new ErrorHandler(500, error.message));
+                        }
                     }
                 });
             }
@@ -108,7 +112,7 @@ const createJSON = async (transactions) => {
     for (let i = 0; i < transactions.length; i++) {
         let trans = transactions[i];
         trans.subcategory = await subcategoryDao.getSubCategoryBy({id: trans.subcategory});
-        trans.subcategory[0].category = await categoryDao.getCategoryBy({id: trans.subcategory[0].category});
+        trans.subcategory[0].category = await categoryDao.getCategoryBy({name: trans.subcategory[0].category});
 
         let transTags = await dao.getTransactionTagBy({transactionId: trans.id});
 

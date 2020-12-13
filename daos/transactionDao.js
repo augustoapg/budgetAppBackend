@@ -15,20 +15,10 @@ const createTransactionTable = async () => {
         FOREIGN KEY (subcategory) REFERENCES budget.subcategory(id)
     )`;
 
-    const connection = await mysql.createConnection(dbConfig);
-    let results = null;
-
     try {
-        [results, fields] = await connection.execute(sql);
+        return await dbUtils.executeSqlCreateTable(sql);        
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-        if (results && results.warningStatus !== 0) {
-            return false;
-        }
-
-        return true;
     }
 }
 

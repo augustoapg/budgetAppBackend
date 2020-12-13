@@ -9,7 +9,7 @@ class SubCategory {
             canBeEmpty: false
         },
         category: {
-            type: "number",
+            type: "string",
             canBeEmpty: false
         }
     };

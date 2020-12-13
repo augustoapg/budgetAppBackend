@@ -9,21 +9,10 @@ const createTagTable = async () => {
         color VARCHAR(70) NOT NULL
     )`;
 
-    const connection = await mysql.createConnection(dbConfig);
-    let results = null;
-
     try {
-        [results, fields] = await connection.query(sql);
-        await createTransactionTagTable();
+        return await dbUtils.executeSqlCreateTable(sql);        
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-        if (results && results.warningStatus !== 0) {
-            return false;
-        }
-
-        return true;
     }
 }
 
@@ -36,21 +25,10 @@ const createTransactionTagTable = async () => {
         CONSTRAINT fk_transactionId FOREIGN KEY (transactionId) REFERENCES budget.transactions(id)
     )`;
 
-    const connection = await mysql.createConnection(dbConfig);
-    let results = null;
-
     try {
-        [results, fields] = await connection.query(sql);
+        return await dbUtils.executeSqlCreateTable(sql);        
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-        if (results && results.warningStatus !== 0) {
-            return false;
-        }
-
-        console.log('Junction table transaction_tag was now created');
-        return true;
     }
 }
 
@@ -70,16 +48,6 @@ const getAllTags = async () => {
 
     try {
         return await dbUtils.executeQuery(querySql, []);
-    } catch (error) {
-        throw error;
-    }
-}
-
-const getTagById = async (id) => {
-    const querySql = 'SELECT * from tag where id=?';
-
-    try {
-        return dbUtils.executeQuery(querySql, [id]);
     } catch (error) {
         throw error;
     }
@@ -152,9 +120,9 @@ const editTag = async (tag) => {
 
 module.exports = {
     createTagTable,
+    createTransactionTagTable,
     addNewTag,
     getAllTags,
-    getTagById,
     getTagBy,
     deleteTag,
     editTag

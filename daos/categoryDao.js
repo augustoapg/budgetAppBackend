@@ -4,26 +4,14 @@ const dbUtils = require('../helpers/dbUtils');
 
 const createCategoryTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS category (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(50) NOT NULL UNIQUE,
+        name VARCHAR(50) PRIMARY KEY,
         type VARCHAR(50) NOT NULL
     )`;
 
-    const connection = await mysql.createConnection(dbConfig);
-    let results = null;
-
     try {
-        [results, fields] = await connection.query(sql);
+        return await dbUtils.executeSqlCreateTable(sql);        
     } catch (error) {
         throw error;
-    } finally {
-        await connection.end();
-
-        if (results && results.warningStatus !== 0) {
-            return false;
-        }
-
-        return true;
     }
 }
 
@@ -91,20 +79,20 @@ const getCategoryBy = async (queryObj) => {
     }
 }
 
-const deleteCategory = async (id) => {
+const deleteCategory = async (name) => {
     let querySql = 'DELETE from category where ';
 
-    if (id) {
-        querySql += `id = ?`;            
+    if (name) {
+        querySql += `name = ?`;            
     
         try {
-            return dbUtils.executeQuery(querySql, [id]);
+            return dbUtils.executeQuery(querySql, [name]);
         } catch (error) {
             throw error;
         }
         
     } else {
-        throw new Error('Invalid. Id cannot be empty.');
+        throw new Error('Invalid. Name cannot be empty.');
     }
 };
 
@@ -122,8 +110,8 @@ const editCategory = async (category) => {
     }
 
     setStatement = setStatement.slice(0, setStatement.length - 1); // removes last comma
-    updateSql += setStatement + ' where id=?';
-    queryParams.push(category['id']);
+    updateSql += setStatement + ' where name=?';
+    queryParams.push(category['name']);
     
     try {
         return dbUtils.executeQuery(updateSql, queryParams);

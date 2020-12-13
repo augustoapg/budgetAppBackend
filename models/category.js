@@ -1,9 +1,5 @@
 class Category {
     static dataDef = {
-        id: {
-            type: "number",
-            canBeEmpty: false
-        },
         name: {
             type: "string",
             canBeEmpty: false
@@ -14,8 +10,7 @@ class Category {
         }
     }
 
-    constructor (id, name, type) {
-        this.id = id;
+    constructor (name, type) {
         this.name = name;
         this.type = type;
     }

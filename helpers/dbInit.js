@@ -8,6 +8,7 @@ const createAndPopulateTables = async () => {
     const categoryDao = require('../daos/categoryDao');
     const subcategoryDao = require('../daos/subcategoryDao');
     const tagDao = require('../daos/tagDao');
+    const budgetDao = require('../daos/budgetDao');
     
     try {
         const isCategoryTableNew = await categoryDao.createCategoryTable();
@@ -18,6 +19,10 @@ const createAndPopulateTables = async () => {
         console.log(isTransactionTableNew ? 'Table Transaction was created' : 'Table Transaction was already created');
         const isTagTableNew = await tagDao.createTagTable();
         console.log(isTagTableNew ? 'Table Tag was created' : 'Table Tag was already created');
+        const isTransTagTableNew = await tagDao.createTransactionTagTable();
+        console.log(isTransTagTableNew ? 'Table TransactionTag was created' : 'Table TransactionTag was already created');
+        const isBudgetTableNew = await budgetDao.createBudgetTable();
+        console.log(isBudgetTableNew ? 'Table Budget was created' : 'Table Budget was already created');
 
         if (isCategoryTableNew) {
             const categoryTablePopulation = await categoryDao.populateCategoryTable();
