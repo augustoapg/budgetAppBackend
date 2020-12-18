@@ -9,27 +9,37 @@ const { validate } = require('../helpers/dataValidator');
 const newTransaction = async (req, res, next) => {
     try {
         let tags = null;
+        let exptMessage = '';
+
         if ("tags" in req.body) {
             tags = req.body.tags;
-            delete req.body.tags;
+            delete req.body.tags; // delete tags from the request body for remaining the transaction object
         }
         if (validate(Transaction.dataDef, req.body)) {
             const id = await dao.addNewTransaction(req.body);
     
             if (tags != null) {
-                tags.forEach(async tagId => {
+                for (const tagId of tags) {
                     if (typeof(tagId) === "number") {
                         try {
-                            await dao.addNewTransactionTag(tagId, id);
+                            // checks if tag exists. If it does, add transactionTag. If not, write exception message
+                            let tag = await tagDao.getTagBy({id: tagId});
+                            
+                            if (!tag[0]) {
+                                exptMessage += ` Tag with id ${tagId} does not exist.`
+                            } else {
+                                await dao.addNewTransactionTag(tagId, id);
+                            }
+
                         } catch (error) {
                             next(new ErrorHandler(500, error.message));
                         }
                     }
-                });
+                };
             }
             res.send({
                 id: id,
-                message: `Transaction added with id ${id}`
+                message: `Transaction added with id ${id}. ${exptMessage}`
             });
         }
     } catch (e) {
