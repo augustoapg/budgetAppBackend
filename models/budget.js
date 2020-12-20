@@ -5,11 +5,11 @@ class Budget {
             canBeEmpty: false
         },
         month: {
-            type: "int",
+            type: "number",
             canBeEmpty: false
         },
         year: {
-            type: "int",
+            type: "number",
             canBeEmpty: false
         },
         value: {
@@ -25,3 +25,5 @@ class Budget {
         this.value = value;
     }
 }
+
+module.exports = Budget;

@@ -6,6 +6,7 @@
  * @param {json} transactionFields  the parameter and value to be validated
  */
 const validate = (dataDef, transactionFields) => {
+    console.log(dataDef);
     for (const key in transactionFields) {
         if (key in dataDef) {
             let value = transactionFields[key];

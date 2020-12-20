@@ -17,11 +17,13 @@ const createBudgetTable = async () => {
     }
 }
 
-const addNewBudget = async (subcategory, month, year) => {
-    const insertSql = 'INSERT INTO budget (subcategory, month, year) VALUES (?, ?, ?)';
+const addNewBudget = async (budget) => {
+    const {subcategory, month, year, value} = budget;
+    const insertSql = 'INSERT INTO budget (subcategory, month, year, value) VALUES (?, ?, ?, ?)';
 
     try {
-        const result = await dbUtils.executeQuery(insertSql, [subcategory, month, year]);
+        const result = await dbUtils.executeQuery(insertSql, [subcategory, month, year, value]);
+        console.log(result);
         return result.insertId; // TODO: validate this for a composite key object
     } catch (error) {
         throw error;

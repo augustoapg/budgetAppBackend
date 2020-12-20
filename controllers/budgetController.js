@@ -1,4 +1,6 @@
 const dao = require('../daos/budgetDao');
+const subcategoryDao = require('../daos/subCategoryDao');
+const categoryDao = require('../daos/categoryDao');
 const { handleError, ErrorHandler } = require('../helpers/error');
 const Budget = require('../models/budget');
 const { validate } = require('../helpers/dataValidator');
@@ -20,7 +22,8 @@ const newBudget = async (req, res, next) => {
 const getAll = async (req, res, next) => {
     try {
         const allBudgets = await dao.getAllBudgets();
-        res.send(allBudgets);
+        const budgetsJson = await createJSON(allBudgets);
+        res.send(budgetsJson);
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }
@@ -28,7 +31,7 @@ const getAll = async (req, res, next) => {
 
 const getBy = async (req, res, next) => {
     try {
-        const {subcategory, month,value} = req.query;
+        const {subcategory, month, year, value} = req.query;
         const queryObj = {
             subcategory: subcategory,
             month: month,
@@ -37,8 +40,8 @@ const getBy = async (req, res, next) => {
         }
         
         const budget = await dao.getBudgetBy(queryObj);
-
-        res.send(budget);
+        const budgetJson = await createJSON(budget);
+        res.send(budgetJson);
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }
@@ -66,6 +69,16 @@ const deleteBudget = async (req, res, next) => {
     } catch (e) {
         next(new ErrorHandler(500, e.message));
     }
+}
+
+// creates JSON to be sent back, including sub-objects (subcategory and category)
+const createJSON = async (budgets) => {
+    for (let i = 0; i < budgets.length; i++) {
+        let bgt = budgets[i];
+        bgt.subcategory = await subcategoryDao.getSubCategoryBy({id: bgt.subcategory});
+        bgt.subcategory[0].category = await categoryDao.getCategoryBy({name: bgt.subcategory[0].category});
+    }
+    return budgets;
 }
 
 module.exports = {

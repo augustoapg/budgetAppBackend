@@ -6,7 +6,6 @@ const createTransactionTable = async () => {
     const sql = `CREATE TABLE IF NOT EXISTS transactions (
         id INT PRIMARY KEY AUTO_INCREMENT,
         title VARCHAR(70) NOT NULL,
-        type VARCHAR(45) NOT NULL,
         who VARCHAR(45) NOT NULL,
         date DATE NOT NULL,
         value DECIMAL(6,2) NOT NULL,
@@ -23,12 +22,12 @@ const createTransactionTable = async () => {
 }
 
 const addNewTransaction = async (transaction) => {
-    let {type, who, subcategory, title, date, value, notes} = transaction;
+    let {who, subcategory, title, date, value, notes} = transaction;
 
-    const insertSql = 'INSERT INTO transactions (title, type, who, date, value, notes, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const insertSql = 'INSERT INTO transactions (title, who, date, value, notes, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
     try {
-        const result = await dbUtils.executeQuery(insertSql, [title, type, who, date, value, notes, subcategory]);
+        const result = await dbUtils.executeQuery(insertSql, [title, who, date, value, notes, subcategory]);
         return result.insertId;
     } catch (error) {
         console.log(error);

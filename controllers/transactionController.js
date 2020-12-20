@@ -59,10 +59,9 @@ const getAll = async (req, res, next) => {
 
 const getBy = async (req, res, next) => {
     try {
-        const {id, type, who, subcategory, title, dateMin, dateMax, valueMin, valueMax} = req.query;
+        const {id, who, subcategory, title, dateMin, dateMax, valueMin, valueMax} = req.query;
         const queryObj = {
             id: id,
-            type: type,
             who: who,
             subcategory: subcategory,
             title, title,
