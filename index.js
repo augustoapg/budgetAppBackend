@@ -1,21 +1,20 @@
 const express = require('express');
 const server = express();
 const dbInit = require('./helpers/dbInit');
-const { handleError, ErrorHandler } = require('./helpers/error');
-
 const routes = require('./routes/index.route');
-server.use(express.json());
-server.use(express.urlencoded({ extended: true }));
-server.use(routes);
+const { handleError, ErrorHandler } = require('./helpers/error');
 
 server.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
     // Pass to next layer of middleware
     next();
 });
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
+server.use(routes);
+
 
 server.get('/', (req, res, next) => {
     res.send('Backend root');
